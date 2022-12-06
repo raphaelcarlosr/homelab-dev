@@ -18,6 +18,8 @@ HL_CLUSTER_SERVERS=1
 HL_CLUSTER_AGENTS=1
 HL_CLUSTER_PV_SIZE=10
 
+NGINX_LB_EXTERNAL_IP=
+
 function exitWithMsg()
 {
     # $1 is error code
