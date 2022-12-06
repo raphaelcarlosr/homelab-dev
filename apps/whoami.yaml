@@ -1,0 +1,152 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: whoami
+  name: whoami
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: whoami
+  template:
+    metadata:
+      labels:
+        app: whoami
+    spec:
+      containers:
+        - image: traefik/whoami:latest
+          name: whoami
+          ports:
+            - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: whoami-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: whoami
+  ports:
+    - port: 80
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: whoami-http
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+    traefik.ingress.kubernetes.io/router.middlewares: default-redirectscheme@kubernetescrd
+spec:
+  rules:
+    - host: homelab.cardsec.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: whoami-svc
+                port:
+                  number: 80
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: whoami-crd
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: Host(`homelab.cardsec.dev`)
+      services:
+        - kind: Service
+          name: whoami-svc
+          port: 80
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: whoami-crd-https
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`homelab.cardsec.dev`) || Host(`whoami.homelab.cardsec.dev`)
+      services:
+        - kind: Service
+          name: whoami-svc
+          port: 80
+      middlewares:
+        - name: default-security@kubernetescrd
+  tls:
+    certResolver: le
+    domains:
+      - main: homelab.cardsec.dev
+        sans:
+          - homelab.cardsec.dev
+    options:
+      name: tlsoptions
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: TLSOption
+metadata:
+  name: tlsoptions
+spec:
+  minVersion: VersionTLS12
+  cipherSuites:
+    - TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
+    - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+    - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+    - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+    - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+    - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+    - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
+    - TLS_AES_256_GCM_SHA384
+    - TLS_AES_128_GCM_SHA256
+    - TLS_CHACHA20_POLY1305_SHA256
+    - TLS_FALLBACK_SCSV
+  curvePreferences:
+    - CurveP521
+    - CurveP384
+  sniStrict: true
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: security
+spec:
+  headers:
+    frameDeny: true               # the page can not be loaded in an iframe, Set frameDeny to true to add the X-Frame-Options header with the value of DENY.
+    sslRedirect: true             # The sslRedirect only allow HTTPS requests when set to true.
+    browserXssFilter: true        # Limit XSS, Set browserXssFilter to true to add the X-XSS-Protection header with the value 1; mode=block.
+    contentTypeNosniff: true      # Do not detect Mime type by browser, Set contentTypeNosniff to true to add the X-Content-Type-Options header with the value nosniff.
+    # HSTS HTTP Strict Transport Security
+    stsIncludeSubdomains: true    # If the stsIncludeSubdomains is set to true, the includeSubDomains directive is appended to the Strict-Transport-Security header. all subdomains have to HSTS complained
+    stsPreload: true              # https://hstspreload.org/
+    stsSeconds: 31536000          #  To be able to use HSTS Preloading, this parameter must be at least 31536000 second
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: whoami-crd
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: Host(`homelab.cardsec.dev`)
+      services:
+        - kind: Service
+          name: whoami-svc
+          port: 80
+      middlewares:
+        - name: default-redirectscheme@kubernetescrd

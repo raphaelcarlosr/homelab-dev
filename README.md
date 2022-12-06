@@ -11,3 +11,4 @@
 - [https://github.com/scaamanho/k3d-cluster/blob/master/k3d-cluster]
 - [https://github.com/mrsimonemms/gitpod-k3s-guide/blob/main/setup.sh]
 - [https://github.com/filipweilid/k3s-homelab]
+- [https://github.com/traefik-workshops/traefik-workshop/blob/master/README.md]

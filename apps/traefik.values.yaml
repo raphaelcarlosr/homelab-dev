@@ -1,0 +1,18 @@
+logs:
+  general:
+    level: INFO
+  access:
+    enabled: true
+    format: json
+
+additionalArguments:
+  - "--certificatesresolvers.le-staging.acme.tlschallenge=true"
+  - "--certificatesresolvers.le-staging.acme.email=raphaelcarlosr@gmail.com"
+  - "--certificatesresolvers.le-staging.acme.storage=/data/acme.json"
+  - "--certificatesresolvers.le-staging.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+  - "--certificatesresolvers.le.acme.tlschallenge=true"
+  - "--certificatesresolvers.le.acme.email=raphaelcarlosr@gmail.com"
+  - "--certificatesresolvers.le.acme.storage=/data/acme.json"
+
+persistence:
+  enabled: true

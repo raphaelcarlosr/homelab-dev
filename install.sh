@@ -69,11 +69,11 @@ function rollback()
 # This file can be run locally or from a remote source:
 #
 # Local: ./setup.sh install
-# Remote: curl https://raw.githubusercontent.com/raphaelcarlosr/homelab-dev/main/install.sh | CMD=install bash
+# Remote: curl https://raw.githubusercontent.com/raphaelcarlosr/homelab-dev/main/install.sh | CMD=install sudo bash
 ###
 
 
-set -euo pipefail
+# set -euo pipefail
 
 USE_REMOTE_REPO=0
 if [ -z "${BASH_SOURCE:-}" ]; then
@@ -87,7 +87,7 @@ fi
 REPO_RAW_URL="${REPO_RAW_URL:-https://raw.githubusercontent.com/raphaelcarlosr/homelab-dev/main}"
 
 # ######
-BASE_DIR=$(cd $(dirname $0) && pwd)
+BASE_DIR=DIR # $(cd $(dirname $0) && pwd)
 
 trap 'rollback $?' ERR SIGINT
 
@@ -97,12 +97,12 @@ fi
 
 sp="/-\|"
 sc=0
-function spin() 
+spin() 
 {
   printf "\b${sp:sc++:1}"
   ((sc==${#sp})) && sc=0
 }
-function endspin() 
+endspin() 
 { 
     printf "\r%s\n" "$@" 
 }
@@ -194,6 +194,14 @@ function config()
     HL_CLUSTER_PV_SIZE=${READ_VALUE}
 }
 
+function getLocalOrRemoteFile() {
+  if [ "${USE_REMOTE_REPO}" -eq 1 ]; then
+    echo "${REPO_RAW_URL}"
+  else
+    echo "${DIR}"
+  fi
+}
+
 function validateConfig()
 {
     if [[ $HL_CLUSTER_API_PORT != ?(-)+([0-9]) ]]; then
@@ -250,6 +258,13 @@ function installDependencies()
         sudo apt install jq -y
     fi
     log "$(jq --version)"    
+
+    if [[ "$(which htpasswd)" == "" ]]; then
+        log "htpasswd not found. Installing."
+        sudo apt install apache2-utils
+    fi
+    log "$(jq --version)"   
+    # apt install apache2-utils
 }
 
 function createK3d()
@@ -260,21 +275,35 @@ function createK3d()
     header "Creating K3D cluster"
     # https://k3d.io/v5.4.1/usage/configfile/
     # curl "$(get_local_or_remote_file)/resources/k3d.yaml" | envsubst - --output "tmp-k3d-${HL_CLUSTER_NAME}.yaml"
-    cat $BASE_DIR/resources/k3d.yaml | envsubst > tmp-k3d-${HL_CLUSTER_NAME}.yaml
+    cat resources/k3d.yaml | envsubst > tmp-k3d-${HL_CLUSTER_NAME}.yaml
     k3d cluster create --config tmp-k3d-${HL_CLUSTER_NAME}.yaml
     export KUBECONFIG=$(k3d kubeconfig write ${HL_CLUSTER_NAME})
     kubectl cluster-info
+    kubectl get nodes
     if [ $? -ne 0 ]; then
         exitAfterCleanup 1 "Failed to spinup cluster."
     fi
     log "Waiting for cluster up"
     until [[ $(kubectl get pods -A -o jsonpath='{range .items[*]}{.status.conditions[?(@.type=="Ready")].status}{"\t"}{.status.containerStatuses[*].name}{"\n"}{end}' | grep coredns | awk -F " " '{print $1}' ) = 'True' ]]; do 
-      spin
+        spin
     done
     endspin
+    kubectl get pods -A
 }
 
-function metallb()
+function createCluster(){
+    header "Creating cluster"
+    createK3d
+}
+
+function addHelmRepos()
+{
+    header "Updating helm repositories"
+    helm repo add traefik https://helm.traefik.io/traefik
+    helm repo update
+}
+
+function metallbApp()
 {
     metallbVersion="v0.13.7"
     header "Deploying MetalLB loadbalancer. ${metallbVersion}"
@@ -290,25 +319,26 @@ function metallb()
     cidr_block=$(docker network inspect ${HL_CLUSTER_NAME}-net | jq '.[0].IPAM.Config[0].Subnet' | tr -d '"')
     base_addr=${cidr_block%???}
     first_addr=$(echo $base_addr | awk -F'.' '{print $1,$2,$3,240}' OFS='.')
-    range=$first_addr/29
-    log "Creating config for network range ($range) config map"
-    cat <<EOF | kubectl apply -f -
-apiVersion: metallb.io/v1beta1
-kind: IPAddressPool
-metadata:
-  name: cheap
-  namespace: metallb-system
-spec:
-  addresses:
-    - $range
-EOF
+    NETWORK_IP_RANGE=$first_addr/29
+    log "Creating config for network range ($NETWORK_IP_RANGE) config map"
+    export NETWORK_IP_RANGE=$NETWORK_IP_RANGE
 
+    # cat apps/metallb.yaml | envsubst '${NETWORK_IP_RANGE}' | kubectl apply -f -
+    if [ "${USE_REMOTE_REPO}" -eq 1 ]; then
+        curl "$(getLocalOrRemoteFile)/apps/metallb.yaml" --output "/tmp/metallb.yaml"
+        # envsubst < "/tmp/metallb.yaml" | kubectl apply -f -
+        cat /tmp/metallb.yaml | envsubst  | kubectl apply -f -
+    else
+        # envsubst < "${DIR}/apps/metallb.yaml" | kubectl apply -f -
+        cat ${DIR}/apps/metallb.yaml | envsubst  | kubectl apply -f -
+    fi
+    # readFileAndApply /apps/metallb.yaml metallb.yaml
     log "Resources"
     kubectl get all -n metallb-system
     # kubectl get configmaps -n metallb-system config -o yaml
 }
 
-function nginx()
+function nginxApp()
 {
     ingressControllerVersion="v1.5.1"
     header "Deploying Nginx Ingress Controller. ${ingressControllerVersion}"
@@ -327,18 +357,45 @@ function nginx()
     kubectl get all -n ingress-nginx
 }
 
+function traefikApp()
+{
+    header "Installing Traefik"
+    helm install traefik traefik/traefik -f apps/traefik.values.yaml
+    helm ls
+    log "Waiting for Traefik Ingress controller to be ready"
+    until [[ $(kubectl get pods -n default -o jsonpath='{range .items[*]}{.status.conditions[?(@.type=="Ready")].status}{"\t"}{.status.containerStatuses[*].name}{"\n"}{end}' | grep traefik | awk -F " " '{print $1}' ) = 'True' ]]; do 
+      spin
+    done
+    endspin
+
+    kubectl apply -f apps/traefik.yaml
+
+    # helm upgrade traefik traefik/traefik -f apps/traefik.values.yaml
+    # kubectl port-forward $(kubectl get pods --selector "app.kubernetes.io/name=traefik" --output=name) 9000:9000
+    # kubectl get pods
+    # kubectl get svc/traefik
+    # kubectl get all -l"app.kubernetes.io/instance=traefik"
+}
 
 checkHostRequirements
 checkDistro
 config
 validateConfig
 installDependencies
-createK3d
-# metallb
-# nginx
+createCluster
+addHelmRepos
+metallbApp
+# nginxApp
+traefikApp
 cleanup
 
-
+# kubectl apply -f apps/whoami.yaml
+# kubectl scale deployment whoami --replicas=5
+# kubectl scale deployment whoami --replicas=2
+# kubectl get deployments
+# kubectl get rs
+# htpasswd -nBb admin password > auth
+# kubectl create secret generic admin-secret --from-file=auth
 
 function clusterInfo(){
     echo
@@ -357,6 +414,7 @@ function clusterInfo(){
     echo "To list all clusters, run: k3d cluster list"
     echo "To switch to another cluster (In case of multiple clusters), run: kubectl config use-context k3d-<CLUSTERNAME>"
     echo "---------------------------------------------------------------------------"
+    echo "- Traefik kubectl port-forward $(kubectl get pods --selector "app.kubernetes.io/name=traefik" --output=name) 9000:9000"
     echo "---------------------------------------------------------------------------"
     echo
 }
