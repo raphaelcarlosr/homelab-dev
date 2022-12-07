@@ -1,10 +1,20 @@
 #!/usr/bin/env bash
 
+###
+# This file can be run locally or from a remote source:
+#
+# Local: ./setup.sh install
+# Remote: curl https://raw.githubusercontent.com/raphaelcarlosr/homelab-dev/main/setup.sh | CMD=install sudo bash
+###
+
 CPU=${CPU:-"2"}
 MEMORY=${MEMORY:-"2G"}
 DISK=${DISK:-"4G"}
 VM_NAME=${VM_NAME:-"microk8s"}
-export CPU MEMORY DISK VM_NAME
+REPO_URL="${REPO_RAW_URL:-https://github.com/raphaelcarlosr/homelab-dev}"
+REPO_RAW_URL="${REPO_RAW_URL:-https://raw.githubusercontent.com/raphaelcarlosr/homelab-dev/main}"
+
+export CPU MEMORY DISK VM_NAME REPO_URL REPO_RAW_URL
 
 USE_REMOTE_REPO=0
 if [ -z "${BASH_SOURCE:-}" ]; then
@@ -15,8 +25,14 @@ else
     cmd="${1:-}"
     BASE_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
 fi
-REPO_RAW_URL="${REPO_RAW_URL:-https://raw.githubusercontent.com/raphaelcarlosr/homelab-dev/main}"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [ "${USE_REMOTE_REPO}" -eq 1 ]; then
+    SCRIPT_DIR="/tmp/homelab-dev"
+    git clone "${REPO_RAW_URL}.git" $SCRIPT_DIR    
+fi
+
 # shellcheck source=/dev/null
 
 function get_local_or_remote_file() {
@@ -32,29 +48,22 @@ function get_file() {
         curl "$REPO_RAW_URL/${1}" # --output "${1}"
     else
         cat "${BASE_DIR}/${1}"
-    fi    
+    fi
 }
-
-
-export REPO_RAW_URL
-# banner_content=$(get_file "/assets/banner.txt" | envsubst)   
-# echo "$banner_content"
-get_file "/assets/banner.txt" | envsubst
 
 source "$SCRIPT_DIR/src/load.sh"
 
-exit;
 cmd="${cmd:-$1}"
 
 opt="$cmd" #"$1"
-choice=$( tr '[:upper:]' '[:lower:]' <<<"$opt" )
+choice=$(tr '[:upper:]' '[:lower:]' <<<"$opt")
 case $choice in
-    multipass) _multipass "$@" ;;
-     microk8s)  _microk8s "$@" ;;
-          k3d)       _k3d "$@" ;;
-    *)
-      echo "${RED}Usage: ./setup <command>${NC}"
-cat <<-EOF
+multipass) _multipass "$@" ;;
+microk8s) _microk8s "$@" ;;
+k3d) _k3d "$@" ;;
+*)
+    echo "${RED}Usage: ./setup <command>${NC}"
+    cat <<-EOF
 Commands:
 ---------
   multipass    -> Manage multipass - virtualization orchestrator
