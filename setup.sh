@@ -30,7 +30,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [ "${USE_REMOTE_REPO}" -eq 1 ]; then
     SCRIPT_DIR="/tmp/homelab-dev"
-    git clone "${REPO_RAW_URL}.git" $SCRIPT_DIR    
+    rm -rf $SCRIPT_DIR
+    git clone "${REPO_URL}.git" $SCRIPT_DIR    
 fi
 
 # shellcheck source=/dev/null
