@@ -16,6 +16,12 @@ source "$SCRIPT_DIR/common/undo.sh"
 source "$SCRIPT_DIR/common/requirements.sh"
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/common/utils.sh"
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/bin/multipass.sh"
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/apps/tekton.sh"
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/cli/cluster.sh"
 
 # std_header "Header"
 # std_log "Log"

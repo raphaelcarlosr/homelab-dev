@@ -31,7 +31,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ "${USE_REMOTE_REPO}" -eq 1 ]; then
     SCRIPT_DIR="/tmp/homelab-dev"
     rm -rf $SCRIPT_DIR
-    git clone "${REPO_URL}.git" $SCRIPT_DIR    
+    git clone "${REPO_URL}.git" $SCRIPT_DIR
 fi
 
 # shellcheck source=/dev/null
@@ -67,9 +67,7 @@ k3d) _k3d "$@" ;;
     cat <<-EOF
 Commands:
 ---------
-  multipass    -> Manage multipass - virtualization orchestrator
-  microk8s     -> Manage microk8s  - k8s orchestrator
-      k3d      -> Manage microk8s  - k3s (minimal Kubernetes distribution) in docker
+  cluster       -> Manage cluster - cluster management
 EOF
     ;;
 esac

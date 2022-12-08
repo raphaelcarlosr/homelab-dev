@@ -47,3 +47,11 @@ function get_vm_name() {
 function all_colors(){
   echo "$BOLD R $UNDERLINE A $RED J $GREEN A. $BLUE S $NC"
 }
+
+function htpasswd(){
+  if [ ! -f auth ]; then
+      mkdir auth
+  fi
+  docker run --entrypoint htpasswd httpd:2 -Bbn "${1}" "${2}" > auth/htpasswd
+}
+
