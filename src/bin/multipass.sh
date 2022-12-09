@@ -49,7 +49,21 @@ function display_runnning_vms() {
         multipass list
     else
         if [ "$action" != "setup" ]; then
-            raise_error "${RED}No VM instances found.. Exiting...${NC}"
+            exit_with_message "No VM instances found.. Exiting...${NC}"
         fi
     fi
+}
+
+function set_clould_init() {
+# generate cloud-config
+cat > "${HL_PATH}/${HL_CLOUD_INIT}" << EOF
+#cloud-config
+ssh_authorized_keys:
+  - ${K3M_SSH_PUBLIC_KEY_CONTENT}
+package_update: true
+packages:
+ - curl
+runcmd:
+- curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE="644" sh -s -
+EOF
 }

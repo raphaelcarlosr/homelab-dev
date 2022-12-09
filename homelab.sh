@@ -35,26 +35,10 @@ if [ "${USE_REMOTE_REPO}" -eq 1 ]; then
 fi
 
 # shellcheck source=/dev/null
-
-function get_local_or_remote_file() {
-    if [ "${USE_REMOTE_REPO}" -eq 1 ]; then
-        echo "${REPO_RAW_URL}"
-    else
-        echo "${BASE_DIR}"
-    fi
-}
-
-function get_file() {
-    if [ "${USE_REMOTE_REPO}" -eq 1 ]; then
-        curl "$REPO_RAW_URL/${1}" # --output "${1}"
-    else
-        cat "${BASE_DIR}/${1}"
-    fi
-}
-
 source "$SCRIPT_DIR/src/load.sh"
 
 cmd="${cmd:-$1}"
+std_header "Command: ${cmd}"
 
 opt="$cmd" #"$1"
 choice=$(tr '[:upper:]' '[:lower:]' <<<"$opt")
@@ -63,11 +47,7 @@ multipass) _multipass "$@" ;;
 microk8s) _microk8s "$@" ;;
 k3d) _k3d "$@" ;;
 *)
-    echo "${RED}Usage: ./setup <command>${NC}"
-    cat <<-EOF
-Commands:
----------
-  cluster       -> Manage cluster - cluster management
-EOF
+    std_header "${GREEN}Usage: ./homelab.sh <command>${NC}"
+    std_info "cluster       -> Manage cluster - cluster management"
     ;;
 esac

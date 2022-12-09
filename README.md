@@ -7,12 +7,13 @@
 ## References
 
 - [X] [https://gitlab.com/linuxshots/spinup-k8s/]
+- [X] [https://github.com/rajasoun/multipass-wrapper/blob/main/src/common/multipass.bash]
 - [https://github.com/ruanbekker/k3m/]
 - [https://github.com/traefik-workshops/traefik-workshop/blob/master/README.md]
 - [https://github.com/filipweilid/k3s-homelab]
 - [https://github.com/scaamanho/k3d-cluster/blob/master/k3d-cluster]
 - [https://github.com/mrsimonemms/gitpod-k3s-guide/blob/main/setup.sh]
-- [https://github.com/rajasoun/multipass-wrapper/blob/main/src/common/multipass.bash]
+
 - [https://github.com/gangefors/local-k3s-cluster]
 - [https://gist.github.com/pdxjohnny/a930742dae23ac43e230a3f6ad25dee9]
 - [https://levelup.gitconnected.com/kubernetes-cluster-with-k3s-and-multipass-7532361affa3]
@@ -29,4 +30,9 @@
 - [https://ian-says.com/articles/k3d-k8s-kubernetes/]
 - [https://medium.com/geekculture/creating-your-own-free-and-secure-cloud-lab-using-oracle-cloud-kubernetes-traefik-and-rancher-efadd4c65975]
 - [https://ddymko.medium.com/traefik-with-lets-encrypt-and-docker-af24d2ed3535]
+- [https://github.com/jsiebens/k3s-on-gcp/]
+- [https://nimblehq.co/blog/provision-k3s-on-google-cloud-with-terraform-and-k3sup]
+- [https://github.com/3scale-labs/kloud]
+- [https://www.suse.com/c/rancher_blog/set-up-your-k3s-cluster-for-high-availability-on-digitalocean/]
+- [https://johansiebens.dev/posts/2020/11/provision-a-multi-region-k3s-cluster-on-google-cloud-with-terraform/]
 

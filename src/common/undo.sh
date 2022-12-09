@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
 function cleanup(){
-    echo "Cleanup"
+    std_header "Cleanup"
 }
 function rollback(){
-    echo "Rollback"
+    cleanup 
+    std_header "Rollback"
+    exit "$1"
 }
 
 trap 'rollback $?' ERR SIGINT
