@@ -1,0 +1,8 @@
+#cloud-config
+ssh_authorized_keys:
+  - ${HL_SSH_PUBLIC_KEY_CONTENT}
+package_update: true
+packages:
+ - curl
+runcmd:
+- curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE="644" sh -s -

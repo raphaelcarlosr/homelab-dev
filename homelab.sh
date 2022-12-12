@@ -7,14 +7,11 @@
 # Remote: curl https://raw.githubusercontent.com/raphaelcarlosr/homelab-dev/main/setup.sh | CMD=install sudo bash
 ###
 
-CPU=${CPU:-"2"}
-MEMORY=${MEMORY:-"2G"}
-DISK=${DISK:-"4G"}
-VM_NAME=${VM_NAME:-"microk8s"}
+
 REPO_URL="${REPO_RAW_URL:-https://github.com/raphaelcarlosr/homelab-dev}"
 REPO_RAW_URL="${REPO_RAW_URL:-https://raw.githubusercontent.com/raphaelcarlosr/homelab-dev/main}"
 
-export CPU MEMORY DISK VM_NAME REPO_URL REPO_RAW_URL
+export REPO_URL REPO_RAW_URL
 
 USE_REMOTE_REPO=0
 if [ -z "${BASH_SOURCE:-}" ]; then
@@ -38,14 +35,15 @@ fi
 source "$SCRIPT_DIR/src/load.sh"
 
 cmd="${cmd:-$1}"
-std_header "Command: ${cmd}"
+std_header "Command: $*"
 
 opt="$cmd" #"$1"
 choice=$(tr '[:upper:]' '[:lower:]' <<<"$opt")
 case $choice in
-multipass) _multipass "$@" ;;
-microk8s) _microk8s "$@" ;;
-k3d) _k3d "$@" ;;
+cluster) cluster_cli "$@" ;;
+apps) apps_cli "$@" ;;
+# microk8s) _microk8s "$@" ;;
+# k3d) _k3d "$@" ;;
 *)
     std_header "${GREEN}Usage: ./homelab.sh <command>${NC}"
     std_info "cluster       -> Manage cluster - cluster management"

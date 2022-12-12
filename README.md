@@ -1,5 +1,9 @@
 # homelab-dev
 
+## Commands
+
+- 
+
 ## Prepare environment 
 
 ### [Installing Zsh + Oh-My-Zsh + Starship Increasing productivity](https://guinuxbr.com/en/posts/zsh+oh-my-zsh+starship/)
@@ -8,7 +12,7 @@
 
 - [X] [https://gitlab.com/linuxshots/spinup-k8s/]
 - [X] [https://github.com/rajasoun/multipass-wrapper/blob/main/src/common/multipass.bash]
-- [https://github.com/ruanbekker/k3m/]
+- [X] [https://github.com/ruanbekker/k3m/]
 - [https://github.com/traefik-workshops/traefik-workshop/blob/master/README.md]
 - [https://github.com/filipweilid/k3s-homelab]
 - [https://github.com/scaamanho/k3d-cluster/blob/master/k3d-cluster]

@@ -24,21 +24,5 @@ function check_memory() {
     fi
 }
 
-function check_ssh_key(){
-    if [ -f "${HL_SSH_PUBLIC_KEY}" ]
-    then
-        # key exists, read content
-        HL_SSH_PUBLIC_KEY_CONTENT="$(cat ${HL_SSH_PUBLIC_KEY})"
-    else 
-        # key does not exist, create key
-        std_info "Specified key does not exist, creating $GREEN ssh key ${HL_PATH}/ssh_key"
-        ssh-keygen -b 2048 -f "${HL_PATH}"/ssh_key -t rsa -C "homelab" -q -N ""
-        HL_SSH_PRIVATE_KEY=${HL_PATH}/ssh_key
-        HL_SSH_PUBLIC_KEY=${HL_SSH_PRIVATE_KEY}.pub
-        HL_SSH_PUBLIC_KEY_CONTENT="$(cat "${HL_SSH_PUBLIC_KEY}")"
-    fi    
-}
-
 check_distro
 check_memory
-# check_ssh_key

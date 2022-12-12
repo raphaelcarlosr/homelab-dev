@@ -1,9 +1,17 @@
 #!/usr/bin/env bash
 
 function launch_vm() {
-    VM_NAME=$1
+    local VM_NAME CPU MEMORY DISK
+    VM_NAME=$1 || "${HL_NAME}"
+    CPU=${2:-"2"}
+    MEMORY=${3:-"2G"}
+    DISK=${4:-"4G"}
+
+    std_log "Creating multipass instance ${VM_NAME}, cpu:${CPU}, memory:${MEMORY}, disk=${DISK}"
+
     #multipass launch -n "$VM_NAME"
-    multipass launch -c"$CPU" -m"$MEMORY" -d"$DISK" -n "$VM_NAME"
+    multipass launch --cpu "$CPU" --memory "$MEMORY" --disk "$DISK" --name "$VM_NAME" --cloud-init "${SCRIPT_DIR}/resources/${HL_CLOUD_INIT}"
+    # multipass launch "${HL_INSTANCE_IMAGE}" --name "${HL_INSTANCE_NAME}" --cloud-init "${HL_PATH}/${HL_CLOUD_INIT}"
     IP=$(multipass info "$VM_NAME" | grep IPv4 | awk '{print $2}')
 
     echo "${GREEN}VM Creation Sucessfull${NC}"
@@ -54,16 +62,16 @@ function display_runnning_vms() {
     fi
 }
 
-function set_clould_init() {
-# generate cloud-config
-cat > "${HL_PATH}/${HL_CLOUD_INIT}" << EOF
-#cloud-config
-ssh_authorized_keys:
-  - ${K3M_SSH_PUBLIC_KEY_CONTENT}
-package_update: true
-packages:
- - curl
-runcmd:
-- curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE="644" sh -s -
-EOF
-}
+# function set_clould_init() {
+# # generate cloud-config
+# cat > "${HL_PATH}/${HL_CLOUD_INIT}" << EOF
+# #cloud-config
+# ssh_authorized_keys:
+#   - ${K3M_SSH_PUBLIC_KEY_CONTENT}
+# package_update: true
+# packages:
+#  - curl
+# runcmd:
+# - curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE="644" sh -s -
+# EOF
+# }
