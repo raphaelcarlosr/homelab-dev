@@ -7,7 +7,6 @@
 # Remote: curl https://raw.githubusercontent.com/raphaelcarlosr/homelab-dev/main/setup.sh | CMD=install sudo bash
 ###
 
-
 REPO_URL="${REPO_RAW_URL:-https://github.com/raphaelcarlosr/homelab-dev}"
 REPO_RAW_URL="${REPO_RAW_URL:-https://raw.githubusercontent.com/raphaelcarlosr/homelab-dev/main}"
 
@@ -42,6 +41,7 @@ choice=$(tr '[:upper:]' '[:lower:]' <<<"$opt")
 case $choice in
 cluster) cluster_cli "$@" ;;
 apps) apps_cli "$@" ;;
+cloudflare) cloudflare_cli "$@" ;;
 # microk8s) _microk8s "$@" ;;
 # k3d) _k3d "$@" ;;
 *)

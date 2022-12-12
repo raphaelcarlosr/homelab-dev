@@ -337,7 +337,7 @@ function app_metallb_install() {
 function app_ngix_install() {
     ingressControllerVersion="master"
     header "Deploying Nginx Ingress Controller. ${ingressControllerVersion}"
-    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-$ingressControllerVersion/deploy/static/provider/cloud/deploy.yaml
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/$ingressControllerVersion/deploy/static/provider/cloud/deploy.yaml
     log "Waiting for Nginx Ingress controller to be ready"
     # kubectl wait --timeout=180s  --for=condition=ready pod -l app.kubernetes.io/component=controller,app.kubernetes.io/instance=ingress-nginx -n ingress-nginx
     until [[ $(kubectl get pods -n ingress-nginx -o jsonpath='{range .items[*]}{.status.conditions[?(@.type=="Ready")].status}{"\t"}{.status.containerStatuses[*].name}{"\n"}{end}' | grep controller | awk -F " " '{print $1}') = 'True' ]]; do

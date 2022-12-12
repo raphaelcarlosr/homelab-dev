@@ -1,20 +1,6 @@
 #!/usr/bin/env bash
 
-function cluster_cli() {
-    opt="$2"
-    action=$(tr '[:upper:]' '[:lower:]' <<<"$opt")
-    std_header "Cluster ${action}"
-    case $action in
-    k3d) 
-    k3d_cli "$@" 
-    ;;
-    *)
-        std_info "Usage"
-        ;;
-    esac
-}
-
-function wait_for_pod(){
+function wait_for_pod() {
     # local _pod, _namespace
     _pod=$1
     _namespace=${2:-default}
@@ -25,157 +11,105 @@ function wait_for_pod(){
     endspin
 }
 
-# function _multipass() {
-#     opt="$2"
-#     action=$(tr '[:upper:]' '[:lower:]' <<<"$opt")
-#     case $action in
-#     setup)
-#         check_preconditions
-#         display_runnning_vms "$action"
-#         get_vm_name
-#         echo "CPU:$CPU | MEMORY:$MEMORY | DISK:$DISK"
-#         setup "$VM_NAME"
-#         ;;
-#     up)
-#         display_runnning_vms "$action"
-#         get_vm_name
-#         multipass start "$VM_NAME"
-#         ;;
-#     upgrade)
-#         display_runnning_vms "$action"
-#         get_vm_name
-#         upgrade "$VM_NAME"
-#         ;;
-#     down)
-#         display_runnning_vms "$action"
-#         get_vm_name
-#         multipass stop "$VM_NAME"
-#         ;;
-#     shell)
-#         display_runnning_vms "$action"
-#         get_vm_name
-#         multipass shell "$VM_NAME"
-#         ;;
-#     status)
-#         display_runnning_vms "$action"
-#         get_vm_name
-#         multipass info "$VM_NAME"
-#         ;;
-#     clean)
-#         display_runnning_vms "$action"
-#         get_vm_name
-#         multipass stop "$VM_NAME" && multipass delete "$VM_NAME" && multipass purge
-#         ;;
-#     *)
-#         echo "${RED}Usage: ./assist <command>${NC}"
-#         cat <<-EOF
-# Commands:
-# ---------
-#   setup               -> Setup VM
-#   up                  -> Bring Up VM
-#   upgrade             -> Upgrade VM
-#   down                -> Bring Down VM
-#   shell               -> Enter Shell
-#   status              -> Status of all multipass VMs
-#   clean               -> Clean & Destroy VM
-# EOF
-#         ;;
-#     esac
-# }
+function cluster_info() {
+    kubectl cluster-info
+    kubectl config get-contexts
+    kubectl get nodes
+}
 
-# function _k3d() {
-#     opt="$2"
-#     action=$(tr '[:upper:]' '[:lower:]' <<<"$opt")
-#     case $action in
-#     setup)
-#         #_multipass "$@"
-#         multipass exec "$VM_NAME" -- curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash || echo "k3d install ❌"
-#         multipass exec "$VM_NAME" -- k3d cluster create microk3s
-#         ;;
-#     status)
-#         _multipass "$@"
-#         ;;
-#     pods)
-#         kubectl get pods --all-namespaces || echo "pods  ❌"
-#         ;;
-#     dashboard)
-#         secret=$(multipass exec "$VM_NAME" -- sudo kubectl -n kube-system get secret | grep default-token | cut -d " " -f1)
-#         token=$(multipass exec "$VM_NAME" -- sudo kubectl -n kube-system describe secret "$secret" | grep token:)
-#         IP=$(multipass info "$VM_NAME" | grep IPv4 | awk '{ print $2 }')
+function cluster_dump() {
+    echo
+    echo
+    echo "---------------------------------------------------------------------------"
+    echo "---------------------------------------------------------------------------"
+    echo "Cluster name: ${HL_CLUSTER_NAME}"
+    echo "K8s server: https://0.0.0.0:${HL_CLUSTER_API_PORT}"
+    echo "Ingress Load Balancer: $NGINX_LB_EXTERNAL_IP"
+    echo "Open sample app in browser: http://$NGINX_LB_EXTERNAL_IP/sampleapp"
+    echo "To switch to this cluster use export KUBECONFIG=\$(k3d kubeconfig write ${HL_CLUSTER_NAME})"
+    echo "Then kubectl cluster-info"
+    echo "To stop this cluster (If running), run: k3d cluster stop $HL_CLUSTER_NAME"
+    echo "To start this cluster (If stopped), run: k3d cluster start $HL_CLUSTER_NAME"
+    echo "To delete this cluster, run: k3d cluster delete $HL_CLUSTER_NAME"
+    echo "To list all clusters, run: k3d cluster list"
+    echo "To switch to another cluster (In case of multiple clusters), run: kubectl config use-context k3d-<CLUSTERNAME>"
+    echo "---------------------------------------------------------------------------"
+    echo "- Traefik kubectl port-forward $(kubectl get pods --selector "app.kubernetes.io/name=traefik" --output=name) 9000:9000"
+    echo "---------------------------------------------------------------------------"
+    echo
+}
 
-#         multipass exec "$VM_NAME" -- sudo kubectl port-forward -n kube-system service/kubernetes-dashboard \
-#             10443:443 --address 0.0.0.0 >/dev/null 2>&1 &
-#         echo "Dashboard URL: https://$IP:10443"
-#         echo "$token"
-#         ;;
-#     clean)
-#         _multipass "$@"
-#         ;;
-#     *)
-#         echo "${RED}Usage: ./assist <command>${NC}"
-#         cat <<-EOF
-# Commands:
-# ---------
-#   setup       -> Install and Configure microk8s
-#   dashboard   -> Access k8s Dashboard
-#   pods        -> List Running PODs
-#   clean       -> Clean multipass VM
-# EOF
-#         ;;
-#     esac
-# }
+function dns_setup_managed() {
+    log "Configuring ${MANAGED_DNS_PROVIDER} managed DNS provider"
+    case "${MANAGED_DNS_PROVIDER:-}" in
+    cloudflare)
+        log "Installing Cloudflare managed DNS"
+        kubectl create secret generic cloudflare-api-token \
+            -n cert-manager \
+            --from-literal=api-token="${CLOUDFLARE_API_TOKEN}" \
+            --dry-run=client -o yaml |
+            kubectl replace --force -f -
 
-# function _microk8s() {
-#     opt="$2"
-#     action=$(tr '[:upper:]' '[:lower:]' <<<"$opt")
-#     case $action in
-#     setup)
-#         _multipass "$@"
-#         multipass exec "$VM_NAME" -- sudo snap install microk8s --classic || echo "microk8s install ❌"
-#         multipass exec "$VM_NAME" -- sudo iptables -P FORWARD ACCEPT || echo "iptables update ❌"
-#         multipass exec "$VM_NAME" -- sudo usermod -a -G microk8s ubuntu || echo "usermod  ❌"
-#         multipass exec "$VM_NAME" -- sudo snap alias microk8s.kubectl kubectl || echo "snap alias  ❌"
-#         multipass exec "$VM_NAME" -- microk8s status --wait-ready || echo "status  ❌"
-#         multipass exec "$VM_NAME" -- microk8s start || echo "microk8s start  ❌"
-#         multipass exec "$VM_NAME" -- microk8s enable dashboard || echo "dashboard  ❌"
-#         multipass exec "$VM_NAME" -- kubectl get pods --all-namespaces || echo "pods  ❌"
-#         multipass exec "$VM_NAME" -- kubectl cluster-info || echo "cluster info  ❌"
+        if [ "${USE_REMOTE_REPO}" -eq 1 ]; then
+            curl "$(get_local_or_remote_file)/assets/cloudflare.yaml" --output "/tmp/cloudflare.yaml"
+            envsubst <"/tmp/cloudflare.yaml" | kubectl apply -f -
+        else
+            envsubst <"${DIR}/assets/cloudflare.yaml" | kubectl apply -f -
+        fi
+        ;;
+    gcp)
+        log "Installing GCP managed DNS"
+        kubectl create secret generic clouddns-dns01-solver \
+            -n cert-manager \
+            --from-file=key.json="${GCP_SERVICE_ACCOUNT_KEY}" \
+            --dry-run=client -o yaml |
+            kubectl replace --force -f -
 
-#         # multipass exec "$VM_NAME" -- sudo chown -f -R ubuntu ~/.kube || echo "chown  ❌"
-#         token=$(multipass exec "$VM_NAME" -- kubectl -n kube-system get secret | grep default-token | cut -d " " -f1)
-#         multipass exec "$VM_NAME" -- kubectl -n kube-system describe secret "$token" || echo "secret  ❌"
-#         # enable kubeconfig on host system
-#         multipass exec "$VM_NAME" -- microk8s config >kubeconfig/.admin.kubeconfig || echo "kubeconfig  ❌"
-#         ;;
-#     status)
-#         _multipass "$@"
-#         ;;
-#     pods)
-#         kubectl get pods --all-namespaces || echo "pods  ❌"
-#         ;;
-#     dashboard)
-#         secret=$(multipass exec "$VM_NAME" -- sudo kubectl -n kube-system get secret | grep default-token | cut -d " " -f1)
-#         token=$(multipass exec "$VM_NAME" -- sudo kubectl -n kube-system describe secret "$secret" | grep token:)
-#         IP=$(multipass info "$VM_NAME" | grep IPv4 | awk '{ print $2 }')
+        if [ "${USE_REMOTE_REPO}" -eq 1 ]; then
+            curl "$(get_local_or_remote_file)/assets/gcp.yaml" --output "/tmp/gcp.yaml"
+            envsubst <"/tmp/gcp.yaml" | kubectl apply -f -
+        else
+            envsubst <"${DIR}/assets/gcp.yaml" | kubectl apply -f -
+        fi
+        ;;
+    route53)
+        log "Installing Route 53 managed DNS"
+        kubectl create secret generic route53-api-secret \
+            -n cert-manager \
+            --from-literal=secret-access-key="${ROUTE53_SECRET_KEY}" \
+            --dry-run=client -o yaml |
+            kubectl replace --force -f -
 
-#         multipass exec "$VM_NAME" -- sudo kubectl port-forward -n kube-system service/kubernetes-dashboard \
-#             10443:443 --address 0.0.0.0 >/dev/null 2>&1 &
-#         echo "Dashboard URL: https://$IP:10443"
-#         echo "$token"
-#         ;;
-#     clean)
-#         _multipass "$@"
-#         ;;
-#     *)
-#         echo "${RED}Usage: ./assist <command>${NC}"
-#         cat <<-EOF
-# Commands:
-# ---------
-#   setup       -> Install and Configure microk8s
-#   dashboard   -> Access k8s Dashboard
-#   pods        -> List Running PODs
-#   clean       -> Clean multipass VM
-# EOF
-#         ;;
-#     esac
-# }
+        if [ "${USE_REMOTE_REPO}" -eq 1 ]; then
+            curl "$(get_local_or_remote_file)/assets/route53.yaml" --output "/tmp/route53.yaml"
+            envsubst <"/tmp/route53.yaml" | kubectl apply -f -
+        else
+            envsubst <"${DIR}/assets/route53.yaml" | kubectl apply -f -
+        fi
+        ;;
+    selfsigned)
+        log "A self-signed certificate will be created"
+        ;;
+    *)
+        log "Not installing managed DNS"
+        ;;
+    esac
+}
+
+function cluster_cli() {
+    opt="$2"
+    action=$(tr '[:upper:]' '[:lower:]' <<<"$opt")
+    std_header "Cluster ${action}"
+    case $action in
+    k3d)
+        k3d_cli "$@"
+        cluster_info
+        cluster_dump
+        ;;
+    *)
+        std_info "Usage"
+        ;;
+    esac
+}
+
+

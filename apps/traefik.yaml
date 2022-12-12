@@ -17,7 +17,7 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`cardsec.dev`) && PathPrefix(`/dashboard`) || PathPrefix(`/api`)
+      match: (Host(`${HL_FQDN_DOMAIN}`) && PathPrefix(`/dashboard`)) || PathPrefix(`/api`)
       services:
         - kind: TraefikService
           name: api@internal

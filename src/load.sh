@@ -31,8 +31,8 @@ source "$SCRIPT_DIR/bin/common/resources.sh"
 
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/bin/tools/k3d.sh"
-# shellcheck source=/dev/null
-source "$SCRIPT_DIR/bin/tools/multipass.sh"
+# # shellcheck source=/dev/null
+# source "$SCRIPT_DIR/bin/tools/multipass.sh"
 
 # # shellcheck source=/dev/null
 # source "$SCRIPT_DIR/bin/registry.sh"
@@ -46,9 +46,12 @@ source "$SCRIPT_DIR/bin/tools/multipass.sh"
 # CLI
 
 # shellcheck source=/dev/null
-source "$SCRIPT_DIR/bin/cli/cluster.sh"
-# shellcheck source=/dev/null
 source "$SCRIPT_DIR/bin/cli/apps.sh"
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/bin/cli/cloudflare.sh"
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/bin/cli/cluster.sh"
+
 
 # std_header "Header"
 # std_log "Log"

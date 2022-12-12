@@ -5,4 +5,4 @@ metadata:
   namespace: metallb-system
 spec:
   addresses:
-    - ${NETWORK_IP_RANGE}
+    - ${HL_NETWORK_IP_RANGE}
