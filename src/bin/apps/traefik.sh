@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function metallb_values(){
+function traefik_values(){
     local values
     values=$(mktemp).yaml
     < "$BASE_DIR/apps/traefik.yaml" envsubst  > "${values}"
@@ -23,11 +23,14 @@ function traefik_install(){
     
     wait_for_pod "traefik" "traefik"
     local manifest
-    manifest=$(metallb_values | tail -1)
+    manifest=$(traefik_values | tail -1)
     # cat "${manifest}"
     kubectl apply -f "${manifest}" -n traefik
     wait_for_pod "traefik" "traefik"
     kubectl get all -n traefik
+    std_info "HTTP: kubectl port-forward service/traefik -n traefik 8000:80"
+    std_info "HTTPS: kubectl port-forward service/traefik -n traefik 8443:443"
+    std_info "Dashboard: kubectl port-forward $(kubectl get pods --selector "app.kubernetes.io/name=traefik" -n traefik --output=name) -n traefik 9000:9000"
     std_success "Deploy done"
 }
 

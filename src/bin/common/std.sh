@@ -17,14 +17,42 @@ function std_header() {
 function std_log() {
     echo "$BLUE ---- [${BOLD}${1}${NORMAL}]"
 }
+
 function std_success() {
     echo "$GREEN ---- [${BOLD}${1}${NORMAL}]"
 }
+
 function std_error() {
     echo "$RED ---- [${BOLD}${1}${NORMAL}]"
 }
+
 function std_info() {
     echo "$BLUE ---- [${BOLD}${1}${NORMAL}]"
+}
+
+function std_array(){
+    str=$1
+    separator=${2:-'|'}
+    log=${3:-"std_log"}
+    IFS="${separator}" read -ra INFO <<< "${str}"
+    for i in "${INFO[@]}"; do $log "${i:-Done}"; done
+}
+
+function std_debug(){
+    str=$1
+    log=${2:-"std_log"}
+    if [ "${HL_DEBUG}" -eq 1 ]; then
+        $log "${str}"
+    fi
+}
+
+function std_debug_array(){
+    str=$1
+    separator=${2:-'|'}
+    log=${3:-"std_log"}
+    if [ "${HL_DEBUG}" -eq 1 ]; then
+        std_array "${str}" "${separator}" "${log}"
+    fi
 }
 
 sp="/-\|"

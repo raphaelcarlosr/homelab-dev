@@ -7,6 +7,8 @@ function nginx_install(){
     wait_for_pod "controller" "ingress-nginx"
     nginx_lb_ip
     kubectl get all -n ingress-nginx
+    std_log "kubectl port-forward service/ingress-nginx-controller -n ingress-nginx 8001:80"
+    std_log "kubectl port-forward service/ingress-nginx-controller -n ingress-nginx 8002:443"
     std_success "Deploy done"
 }
 

@@ -32,3 +32,19 @@ function cloudflare_cli() {
         ;;
     esac
 }
+
+# echo "Configuring Cloudflared"
+# if [ ! -f ~/.cloudflared/cert.pem ]
+# then
+#   cloudflared tunnel login
+# fi
+# CF_TUNNEL_NAME=$SVC_NAMESPACE-gateway
+# CF_TUNNEL_ID=$(cloudflared tunnel list | grep $CF_TUNNEL_NAME | awk '{ print $1 }')
+# if [[ $CF_TUNNEL_ID == "" ]]
+# then
+#   cloudflared tunnel create $CF_TUNNEL_NAME
+#   CF_TUNNEL_ID=$(cloudflared tunnel list | grep $CF_TUNNEL_NAME | awk '{ print $1 }')
+# fi
+
+# echo "Creating DNS for tunnel $CF_TUNNEL_ID/$CF_TUNNEL_NAME"
+# cloudflared tunnel route dns $CF_TUNNEL_NAME labs.$CF_HOST_NAME

@@ -5,5 +5,12 @@
 #     # #      #    # #      #      #    # #####  #      #####     #     # #    # #    # #         #       ###### #    # 
 #     # #       #  #  #      #      #    # #      #      #   #     #     # #    # #    # #         #       #    # #    # 
 ######  ######   ##   ###### ######  ####  #      ###### #    #    #     #  ####  #    # ######    ####### #    # #####  
-                                                                                                                         
-${REPO_URL}     https://raphaelcarlosr.dev
+------------------------------------------------------------------------------------------------------------------------
+Platform: ${HL_HOST_PLATFORM}                                       https://github.com/${HL_REPO_PREFIX}
+${HL_HOST_DISTRO}                                                https://raphaelcarlosr.dev
+${HL_HOST_AVAILABLE_MEMORY}
+Current external IP: ${HL_CURRENT_EXTERNAL_IP}                         
+Process: ${HL_CMD_PROCESS}                                  
+Arguments: ${HL_CMD_ARGS}
+Homelab: ${HL_PATH} [${HL_DOMAIN}] ${HL_ENV_FILE} ${HL_SSH_PRIVATE_KEY}
+------------------------------------------------------------------------------------------------------------------------
