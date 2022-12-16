@@ -19,5 +19,7 @@ function cert_manager_deploy(){
         cert-manager cert-manager | tr '\n' '|')
     std_debug_array "${R}" "|"
     wait_for_pod "controller" "cert-manager"
+    R=$(kubectl get all -n cert-manager | tr '\n' '|')
+    std_array "${R}" "|"
     std_success "Deploy done"
 }

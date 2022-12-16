@@ -61,11 +61,11 @@ stack)
 # microk8s) _microk8s "$@" ;;
 # k3d) _k3d "$@" ;;
 *)
-    std_header "${GREEN}Usage: ./homelab.sh <command>${NC}"
+    std_header "${GREEN}Usage: ./homelab.sh <cli>"
     std_info "cluster       -> Manage cluster"
-    std_info "apps          -> Manage management"
-    std_info "cloudflare    -> Cloudflare management"
-    std_info "stack         -> k3d metallb traefik"
+    # std_info "apps          -> Manage management"
+    # std_info "cloudflare    -> Cloudflare management"
+    # std_info "stack         -> k3d metallb traefik"
     ;;
 esac
 # printenv | grep HL_ | sort

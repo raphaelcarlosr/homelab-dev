@@ -44,7 +44,7 @@ function _load(){
         source "$file"
         i=$(("$i"+1))
     done
-    std_log "$GREEN${i}$BLUE ${kind} ready to install"
+    std_log "$GREEN${i}$BLUE ${kind} ready"
 }
 
 _load "$HL_SCRIPT_BIN/apps" "applications"
