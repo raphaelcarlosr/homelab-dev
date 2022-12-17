@@ -1,15 +1,42 @@
 #!/usr/bin/env bash
+
 # shellcheck source=/dev/null
-source "$HL_SCRIPT_BIN/common/std.sh"
-source "$HL_SCRIPT_BIN/common/undo.sh"
-set -o allexport
-source "$HL_SCRIPT_BIN/common/vars.sh"
-set +o allexport
-source "$HL_SCRIPT_BIN/common/utils.sh"
-source "$HL_SCRIPT_BIN/common/network.sh"
-source "$HL_SCRIPT_BIN/common/requirements.sh"
-source "$HL_SCRIPT_BIN/common/resources.sh"
-source "$HL_SCRIPT_BIN/common/setup.sh"
+# source "$HL_SCRIPT_BIN/common/1.std.sh"
+# source "$HL_SCRIPT_BIN/common/2.undo.sh"
+# set -o allexport
+# source "$HL_SCRIPT_BIN/common/3.vars.sh"
+# set +o allexport
+# source "$HL_SCRIPT_BIN/common/4.utils.sh"
+# source "$HL_SCRIPT_BIN/common/5.network.sh"
+# source "$HL_SCRIPT_BIN/common/6.requirements.sh"
+# source "$HL_SCRIPT_BIN/common/7.resources.sh"
+# source "$HL_SCRIPT_BIN/common/8.setup.sh"
+
+function _load(){
+    _dir=$1
+    kind=${2:-resource}
+    files=()
+    for file in "$_dir"/*.sh; do
+        filename=$(basename -- "$file")
+        # extension="${filename##*.}"
+        filename="${filename%.*}"
+        if [ "$filename" = "3.vars" ]; then
+            set -o allexport
+            # shellcheck source=/dev/null
+            source "$file"
+            set +o allexport
+        else
+            # shellcheck source=/dev/null
+            source "$file"
+        fi
+        files+=("${filename}")
+    done
+    if [ ! "$kind" = "resource" ]; then
+        std_log "$GREEN${#files[@]}$BLUE ${kind} ready: $GREEN${files[*]}"
+    fi    
+}
+
+_load "$HL_SCRIPT_BIN/common"
 
 HL_HOST_OS=$(uname_os)
 HL_HOST_ARCH=$(uname_arch)
@@ -36,16 +63,7 @@ std_header "Developer Home Lab"
 std_log "Using flag values"
 for i in "${HL_FLAGS[@]}"; do std_log "${i}"; done
 
-function _load(){
-    _dir=$1
-    kind=${2:-resource}
-    i=0
-    for file in "$_dir"/*.sh; do
-        source "$file"
-        i=$(("$i"+1))
-    done
-    std_log "$GREEN${i}$BLUE ${kind} ready"
-}
+
 
 _load "$HL_SCRIPT_BIN/apps" "applications"
 _load "$HL_SCRIPT_BIN/tools" "tools"

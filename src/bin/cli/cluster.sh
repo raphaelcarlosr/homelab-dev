@@ -5,7 +5,8 @@ function cluster_cli() {
     opt="$2"
     provider="$3"
     action=$(tr '[:upper:]' '[:lower:]' <<<"$opt")
-    std_header "${action^} cluster (${HL_CLUSTER_NAME}) using ${provider}"
+    std_header "${action^} cluster ($GREEN${HL_CLUSTER_NAME}$BLUE) using $GREEN${provider}"
+    
     if [[ ! ${HL_CLUSTER_ACTIONS[*]} =~ (^|[[:space:]])"${action}"($|[[:space:]]) ]]; then
         std_error "'${action}' is not valid action"
         cluster_cli_usage
@@ -17,17 +18,17 @@ function cluster_cli() {
         return
     fi
 
-    fn="${provider}_${action}"
-    $fn "$@"
+    #fn="${provider}_${action}"
+    #$fn "$@"
 
     case $action in
     create)
-        std_array "$(kubectl cluster-info | tr '\n' '|')" "|"
-        metallb_install
-        cert_manager_deploy
-        cluster_dns_managed_setup
-        racher_deploy
-        cluster_info
+        # std_array "$(kubectl cluster-info | tr '\n' '|')" "|"
+        # metallb_install
+        # cert_manager_deploy
+        # cluster_dns_managed_setup
+        # racher_deploy
+        # cluster_info
         ;;
     delete)
         std_header "Deleting cluster"
