@@ -31,7 +31,7 @@ export HL_CMD_ARGS_LEN=$#
 # set -o #allexport
 # shellcheck source=/dev/null
 source "$HL_SCRIPT_BIN/injector.sh"
-std_info "d2k finished"
+std_success "d2k finished"
 std_line
 # exit 0 
 # cmd="${cmd:-$1}"

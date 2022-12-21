@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 execution_time(){
-    ps -o etime= "${HL_CMD_PROCESS}" | sed -e 's/^[[:space:]]*//'
+    ps -o etime= "${HL_CMD_PROCESS}" | sed -e 's/^[[:space:]]*//' | sed -e 's/\://'
 }
 tag_to_version() {
     if [ -z "${HL_TAG}" ]; then

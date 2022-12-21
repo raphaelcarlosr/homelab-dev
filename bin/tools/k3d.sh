@@ -37,7 +37,7 @@ function cluster_k3d() {
         config=$(set_context)
         std_log "Kubeconfig ${config}"
         cluster_wait_for_pod "coredns" "kube-system"
-        cluster_wait_for_pod "traefik" "kube-system"
+        # cluster_wait_for_pod "traefik" "kube-system"
         network_range=$(network_range | tail -1)
         std_log "Load balancer network range $GREEN ${network_range}"   
     }

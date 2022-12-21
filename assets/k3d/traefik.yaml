@@ -1,0 +1,51 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    dashboard:
+      enabled: true
+    ports:
+      traefik:
+        expose: true # this is not recommended in production deployments, but I want to be able to see my dashboard locally
+    logs:
+      general:
+        level: INFO
+      access:
+        enabled: true
+        format: json
+    forwardedHeaders:
+      enabled: true
+      trustedIPs:
+        - 10.0.0.0/8
+    ssl:
+      enabled: true
+      permanentRedirect: false
+    persistence:
+      enabled: true
+# ---
+# apiVersion: traefik.containo.us/v1alpha1
+# kind: Middleware
+# metadata:
+#   name: redirectscheme
+# spec:
+#   redirectScheme:
+#     scheme: https
+#     permanent: true
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: dashboard
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: (Host(`raphaelcarlosr.com`) && PathPrefix(`/dashboard`)) || PathPrefix(`/api`)
+      services:
+        - kind: TraefikService
+          name: api@internal

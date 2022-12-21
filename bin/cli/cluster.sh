@@ -24,9 +24,11 @@ function d2k_cluster() {
         std_info "Setuping local cluster ${WARN}${HL_CLUSTER_NAME}${NORMAL} environment"
         # etc_hosts check "${HL_CLUSTER_INTERNAL_DOMAIN}"
         etc_hosts add "${HL_CLUSTER_INTERNAL_DOMAIN}" "127.0.0.1"
+        mkdir -p "${HL_PATH}/${HL_CLUSTER_NAME}/manifests/d2k"
         mkdir -p "${HL_PATH}/${HL_CLUSTER_NAME}/logs/"
         mkdir -p "${HL_PATH}/${HL_CLUSTER_NAME}/volumes/shared"
         mkdir -p "${HL_PATH}/${HL_CLUSTER_NAME}/volumes/data"
+        cp -r "${HL_SCRIPT_ASSETS}/k3d"/* "${HL_PATH}/${HL_CLUSTER_NAME}/manifests/d2k"
     }
     validate() {
         if [[ ! ${actions[*]} =~ (^|[[:space:]])"${action}"($|[[:space:]]) ]]; then
