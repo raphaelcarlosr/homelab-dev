@@ -8,7 +8,7 @@ fi
 function check_distro() {
     distroId=$(grep -w DISTRIB_ID /etc/*-release | cut -d "=" -f 2)
     distroVersion=$(grep -w DISTRIB_RELEASE /etc/*-release | cut -d "=" -f 2)
-    std_info "Distro: $GREEN$distroId:$distroVersion"
+    echo "$distroId:$distroVersion"
     if [ "$distroId" != "Ubuntu" ]; then
         exit_with_message 1 "Unsupported Distro. This script is written for Ubuntu OS only."
     fi
@@ -17,12 +17,26 @@ function check_distro() {
 function check_memory() {
     totalMem=$(free --giga | grep -w Mem | tr -s " " | cut -d " " -f 2)
     usedMem=$(free --giga | grep -w Mem | tr -s " " | cut -d " " -f 3)
-    availableMem=$(expr "$totalMem" - "$usedMem")
-    std_info "Available Memory: $GREEN${availableMem}Gi"
+    availableMem=$(("$totalMem" - "$usedMem"))
+    echo "${availableMem}"
+    # std_info "Available Memory: $GREEN${availableMem}Gi"
     if [ "$availableMem" -lt 2 ]; then
         exit_with_message 1 "Atleast 2Gi of free memory required."
     fi
 }
+
+# function check_disk_space(){
+#     df -H | grep -vE '^Filesystem|tmpfs|cdrom' | awk '{ print $5 " " $1 }' | while read -r output;
+#     do
+#       echo "$output"
+#       usep=$(echo "$output" | awk '{ print $1}' | cut -d'%' -f1 )
+#       partition=$(echo "$output" | awk '{ print $2 }' )
+#       if [ $usep -ge $ALERT ]; then
+#         echo "Running out space \"$partition ($usep%)\" on $(hostname) as on $(date)" |
+#     #     mail -s "Alert: Almost out of disk space $usep%" "$ADMIN"
+#       fi
+#     done    
+# }
 
 function require_k3d() {
     if [[ "$(which k3d)" == "" ]]; then

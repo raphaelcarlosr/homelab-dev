@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
-HL_CLUSTER_ACTIONS=('create delete start stop info kubectl')
+HL_CLUSTER_ACTIONS=('create delete start stop bootstrap info kubectl')
 HL_CLUSTER_PROVIDERS=('k3d')
 function cluster_cli() {
     opt="$2"
     provider="$3"
     action=$(tr '[:upper:]' '[:lower:]' <<<"$opt")
     std_header "${action^} cluster ($GREEN${HL_CLUSTER_NAME}$BLUE) using $GREEN${provider}"
-    
     if [[ ! ${HL_CLUSTER_ACTIONS[*]} =~ (^|[[:space:]])"${action}"($|[[:space:]]) ]]; then
         std_error "'${action}' is not valid action"
         cluster_cli_usage
@@ -18,20 +17,21 @@ function cluster_cli() {
         return
     fi
 
-    #fn="${provider}_${action}"
-    #$fn "$@"
-
+    fn="${provider}_${action}"
+    
     case $action in
     create)
-        # std_array "$(kubectl cluster-info | tr '\n' '|')" "|"
-        # metallb_install
-        # cert_manager_deploy
-        # cluster_dns_managed_setup
-        # racher_deploy
-        # cluster_info
+        cluster_setup
+        $fn "$@"
+        std_array "$(kubectl cluster-info | tr '\n' '|')" "|"
+        if [ "$HL_CLUSTER_BOOSTRAP" = "1" ]; then
+            cluster_boostrap
+        fi
+        cluster_info
         ;;
     delete)
-        std_header "Deleting cluster"
+        std_header "Deleting cluster"        
+        cluster_delete
         ;;
     start)
         std_header "Starting cluster"
@@ -53,6 +53,18 @@ function cluster_cli() {
     # if [ "$valid" -eq "1" ]; then
     #     $fn "$@"
     # fi
+}
+
+function cluster_boostrap() {    
+    metallb_install
+    cert_manager_deploy
+    cluster_dns_managed_setup
+    racher_deploy    
+}
+
+function cluster_delete(){
+    etc_hosts delete "${HL_CLUSTER_INTERNAL_DOMAIN}"
+    # rm -fr "${HL_PATH}/${HL_CLUSTER_NAME}"
 }
 
 function cluster_cli_usage() {
@@ -171,5 +183,13 @@ function cluster_info() {
     R=$(kubectl get nodes | tr '\n' '|')
     std_array "${R}" "|"
     R=$(kubectl get all -A | tr '\n' '|')
-    std_array "${R}" "|"    
+    std_array "${R}" "|"
+}
+
+function cluster_setup(){
+    mkdir -p "${HL_PATH}/${HL_CLUSTER_NAME}/logs/"
+    mkdir -p "${HL_PATH}/${HL_CLUSTER_NAME}/volumes/shared"
+    mkdir -p "${HL_PATH}/${HL_CLUSTER_NAME}/volumes/data"
+    etc_hosts check "${HL_CLUSTER_INTERNAL_DOMAIN}"
+    etc_hosts add "${HL_CLUSTER_INTERNAL_DOMAIN}" "127.0.0.1"
 }

@@ -94,6 +94,13 @@ while [[ $# -gt 0 ]]; do
         shift # past argument
         shift # past value
         ;;
+    -cb | --cluster-boostrap)
+        HL_CLUSTER_BOOSTRAP=${2:-${HL_CLUSTER_BOOSTRAP}} # "$2"
+        export HL_CLUSTER_BOOSTRAP
+        HL_FLAGS+=("$GREEN${1:-nil}(HL_CLUSTER_BOOSTRAP) = ${2:-nil}")
+        shift # past argument
+        shift # past value
+        ;;
     -* | --*)
         # std_error "Unknown option $1"
         HL_FLAGS+=("$RED${1:-nil}(Unexpected) = ${2:-nil}")

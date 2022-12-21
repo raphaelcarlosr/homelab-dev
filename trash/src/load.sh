@@ -1,21 +1,9 @@
 #!/usr/bin/env bash
-
-# shellcheck source=/dev/null
-# source "$HL_SCRIPT_BIN/common/1.std.sh"
-# source "$HL_SCRIPT_BIN/common/2.undo.sh"
-# set -o allexport
-# source "$HL_SCRIPT_BIN/common/3.vars.sh"
-# set +o allexport
-# source "$HL_SCRIPT_BIN/common/4.utils.sh"
-# source "$HL_SCRIPT_BIN/common/5.network.sh"
-# source "$HL_SCRIPT_BIN/common/6.requirements.sh"
-# source "$HL_SCRIPT_BIN/common/7.resources.sh"
-# source "$HL_SCRIPT_BIN/common/8.setup.sh"
-
+HL_PKG_FILES=
 function _load(){
+    HL_PKG_FILES=()
     _dir=$1
     kind=${2:-resource}
-    files=()
     for file in "$_dir"/*.sh; do
         filename=$(basename -- "$file")
         # extension="${filename##*.}"
@@ -29,14 +17,17 @@ function _load(){
             # shellcheck source=/dev/null
             source "$file"
         fi
-        files+=("${filename}")
+        HL_PKG_FILES+=("${filename}")
     done
     if [ ! "$kind" = "resource" ]; then
-        std_log "$GREEN${#files[@]}$BLUE ${kind} ready: $GREEN${files[*]}"
-    fi    
+        std_log "$GREEN${#HL_PKG_FILES[@]}$BLUE ${kind} ready: $GREEN${HL_PKG_FILES[*]}"
+    fi
+    export HL_PKG_FILES;
 }
 
 _load "$HL_SCRIPT_BIN/common"
+HL_PKG_COMMON=("${HL_PKG_FILES[@]}")
+# std_log "$GREEN${#pkg_common[@]}$BLUE ${kind} ready: $GREEN${pkg_common[*]}"
 
 HL_HOST_OS=$(uname_os)
 HL_HOST_ARCH=$(uname_arch)
@@ -56,18 +47,20 @@ export HL_HOST_OS \
     HL_CMD_FILE \
     HL_CMD_ARGS \
     HL_CMD_ARGS_LEN \
-    HL_SSH_PUBLIC_KEY_CONTENT
+    HL_SSH_PUBLIC_KEY_CONTENT \
+    HL_PKG_COMMON
 
 envsubst <"${HL_SCRIPT_SRC}/assets/banner.txt"
 std_header "Developer Home Lab"
 std_log "Using flag values"
 for i in "${HL_FLAGS[@]}"; do std_log "${i}"; done
 
-
-
 _load "$HL_SCRIPT_BIN/apps" "applications"
+export HL_PKG_APPS=("${HL_PKG_FILES[@]}")
 _load "$HL_SCRIPT_BIN/tools" "tools"
+export HL_PKG_TOOLS=("${HL_PKG_FILES[@]}")
 _load "$HL_SCRIPT_BIN/cli" "cli's"
+export HL_PKG_CLIS=("${HL_PKG_FILES[@]}")
 
 # Tools
 # source "$HL_SCRIPT_BIN/tools/k3d.sh"
