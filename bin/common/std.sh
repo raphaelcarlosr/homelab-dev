@@ -33,8 +33,6 @@ function read_value() {
     fi
 }
 
-
-
 function std_header() {
     printf "\n$BLUE----- [${BOLD}${1}${NORMAL}] -----\n"
 }
@@ -77,19 +75,25 @@ function std_debug_array() {
         std_array "${str}" "${separator}" "${log}"
     fi
 }
-function std_line(){
+function std_line() {
     echo "------------------------------------------------------------------------------------------------------------------------"
 }
-function show_env_info(){
-    envsubst <"${HL_SCRIPT_ASSETS}/banners/env-info.txt" | column -t -s $'\t'    
+std_buf() {
+    log=${1:-"std_info"}
+    while IFS= read -r line; do
+        $log "$line"
+    done
+}
+function show_env_info() {
+    envsubst <"${HL_SCRIPT_ASSETS}/banners/env-info.txt" | column -t -s $'\t'
 }
 function show_banner() {
     envsubst <"${HL_SCRIPT_ASSETS}/banners/logo.txt"
     echo
     std_line
-    echo "[d2k]${HL_TITLE}   $UNDERLINE${WARN}https://raphaelcarlosr.dev${NORMAL}    $UNDERLINE${WARN}https://github.com/raphaelcarlosr/homelab-dev$NORMAL" | column -t -s $'\t'
-    std_line
-    show_env_info    
+    # echo "[d2k]${HL_TITLE}   $UNDERLINE${WARN}https://raphaelcarlosr.dev${NORMAL}    $UNDERLINE${WARN}https://github.com/raphaelcarlosr/homelab-dev$NORMAL" | column -t -s $'\t'
+    # std_line
+    show_env_info
     std_line
 }
 function spinner() {

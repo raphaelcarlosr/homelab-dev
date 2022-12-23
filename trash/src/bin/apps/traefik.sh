@@ -3,7 +3,7 @@
 function traefik_values(){
     local values
     values=$(mktemp).yaml
-    < "$BASE_DIR/apps/traefik.yaml" envsubst  > "${values}"
+    envsubst < "$BASE_DIR/apps/traefik.yaml" > "${values}"
     echo "${values}"
 }
 

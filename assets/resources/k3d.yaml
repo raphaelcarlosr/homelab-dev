@@ -74,12 +74,12 @@ options:
       - arg: --tls-san=${HL_CLUSTER_DOMAIN} #--tls-san=${HL_CLUSTER_DOMAIN}
         nodeFilters:
           - server:*
-      # - arg: --no-deploy=traefik
-      #   nodeFilters:
-      #     - server:*
-      # - arg: --disable=servicelb
-      #   nodeFilters:
-      #     - server:*
+      - arg: --no-deploy=servicelb,traefik
+        nodeFilters:
+          - server:*
+      - arg: --disable=servicelb,traefik
+        nodeFilters:
+          - server:*
     # nodeLabels:
     #   - label: homelab=dev # same as `--k3s-node-label 'foo=bar@agent:1'` -> this results in a Kubernetes node label
     #     nodeFilters:

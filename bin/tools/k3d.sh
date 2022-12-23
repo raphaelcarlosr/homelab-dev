@@ -47,8 +47,8 @@ function cluster_k3d() {
         first_addr=$(echo "$base_addr" | awk -F'.' '{print $1,$2,$3,240}' OFS='.')
         local NETWORK_IP_RANGE
         NETWORK_IP_RANGE=$first_addr/29
-        export HL_K3D_NETWORK_IP_RANGE=$NETWORK_IP_RANGE
-        echo "${HL_K3D_NETWORK_IP_RANGE}"
+        export HL_NETWORK_IP_RANGE=$NETWORK_IP_RANGE
+        echo "${HL_NETWORK_IP_RANGE}"
     }
     $action "$@"
 

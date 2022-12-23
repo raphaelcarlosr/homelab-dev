@@ -10,6 +10,7 @@
 HL_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export HL_SCRIPT_DIR
 # HL_SCRIPT_SRC="${HL_SCRIPT_DIR}/src"
+export HL_COPY_RIGHT="$UNDERLINE${WARN}https://raphaelcarlosr.dev${NORMAL}"
 export HL_SCRIPT_ASSETS="${HL_SCRIPT_DIR}/assets"
 export HL_SCRIPT_BIN="${HL_SCRIPT_DIR}/bin"
 export HL_SCRIPT_TOOLS="${HL_SCRIPT_BIN}/tools"
@@ -27,7 +28,7 @@ export HL_CMD_PROCESS=$$
 export HL_CMD_FILE=$0
 export HL_CMD_ARGS=$*
 export HL_CMD_ARGS_LEN=$#
-
+export HL_COPY_RIGHT
 # set -o #allexport
 # shellcheck source=/dev/null
 source "$HL_SCRIPT_BIN/injector.sh"
