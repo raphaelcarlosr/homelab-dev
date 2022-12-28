@@ -85,16 +85,16 @@ std_buf() {
     done
 }
 function show_env_info() {
-    envsubst <"${HL_SCRIPT_ASSETS}/banners/env-info.txt" | column -t -s $'\t'
+    envsubst <"${HL_SCRIPT_ASSETS}/env-info.txt" | column -t -s $'\t'
 }
 function show_banner() {
-    envsubst <"${HL_SCRIPT_ASSETS}/banners/logo.txt"
+    envsubst <"${HL_SCRIPT_ASSETS}/logo.txt"
     echo
     std_line
     # echo "[d2k]${HL_TITLE}   $UNDERLINE${WARN}https://raphaelcarlosr.dev${NORMAL}    $UNDERLINE${WARN}https://github.com/raphaelcarlosr/homelab-dev$NORMAL" | column -t -s $'\t'
     # std_line
-    show_env_info
-    std_line
+    # show_env_info
+    # std_line
 }
 function spinner() {
     local action="${1}"
@@ -107,7 +107,7 @@ function spinner() {
     }
     spinnerRun &
     local spinnerPid=$!
-    ${action}
+    ${action} | std_buf
     kill "${spinnerPid}"
     printf "\bDone"
 }

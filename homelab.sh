@@ -13,9 +13,10 @@ export HL_SCRIPT_DIR
 export HL_COPY_RIGHT="$UNDERLINE${WARN}https://raphaelcarlosr.dev${NORMAL}"
 export HL_SCRIPT_ASSETS="${HL_SCRIPT_DIR}/assets"
 export HL_SCRIPT_BIN="${HL_SCRIPT_DIR}/bin"
-export HL_SCRIPT_TOOLS="${HL_SCRIPT_BIN}/tools"
-export HL_SCRIPT_APPS="${HL_SCRIPT_BIN}/apps"
-export HL_SCRIPT_CLIS="${HL_SCRIPT_BIN}/cli"
+export HL_SCRIPT_CONFIG="${HL_SCRIPT_DIR}/config"
+# export HL_SCRIPT_TOOLS="${HL_SCRIPT_BIN}/tools"
+# export HL_SCRIPT_APPS="${HL_SCRIPT_BIN}/apps"
+# export HL_SCRIPT_CLIS="${HL_SCRIPT_BIN}/cli"
 export HL_OWNER=raphaelcarlosr
 export HL_REPO="homelab-dev"
 export HL_REPO_PREFIX="${HL_OWNER}/${HL_REPO}"

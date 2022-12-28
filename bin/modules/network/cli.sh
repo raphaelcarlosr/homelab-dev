@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
 
-network_cli(){
-    std_header "Cluster module"
-    std_info "$*"
+network_cli(){    
     load "modules/network"
-    export HL_PKG_COMMON=("${HL_PKG_FILES[@]}")
-
-    local program args
+    local programs program args
+    programs="${HL_PKG_FILES[*]}"
     program="${1}"
     args=( "${@:2}" )
-    # $program "${args[@]}"
+    if [[ ${programs[*]} =~ (^|[[:space:]])"${program}"($|[[:space:]]) ]]; then
+        std_success "$GREEN${program}$NORMAL program"
+        $program "${args[@]}"
+    elif [ "$(fn_exists "${program}")" = 1 ]; then
+        std_success "$GREEN${program}$NORMAL function"
+        $program "${args[@]}"
+    else        
+        std_error "'$RED${program}$NORMAL' is not valid program, try use $GREEN${programs[*]}"
+    fi
+    
 }

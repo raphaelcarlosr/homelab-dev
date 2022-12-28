@@ -1,5 +1,17 @@
 #!/usr/bin/env bash
-execution_time(){
+
+extract_ip() {
+    local data
+    data=${1}
+    ip="$(grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' <<<"$data")"
+    echo "$GREEN${ip}"
+    # while read line; do
+    #     ip="$(grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' <<<"$line")"
+    #     echo "$ip"
+    # done <"abd"
+
+}
+execution_time() {
     ps -o etime= "${HL_CMD_PROCESS}" | sed -e 's/^[[:space:]]*//' | sed -e 's/\://'
 }
 tag_to_version() {
@@ -49,7 +61,9 @@ adjust_arch() {
 is_command() {
     command -v "$1" >/dev/null
 }
-
+fn_exists() { 
+    declare -F "$1" > /dev/null && echo 1 || echo 0; 
+}
 uname_os() {
     os=$(uname -s | tr '[:upper:]' '[:lower:]')
     case "$os" in

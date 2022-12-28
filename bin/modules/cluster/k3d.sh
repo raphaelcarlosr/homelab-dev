@@ -1,6 +1,38 @@
 #!/usr/bin/env bash
+cluster_k3d(){
+    local action name
+    action="${1}"
+    name="${2:-$HL_CLUSTER_NAME}"
+    export HL_CLUSTER_NAME=$name
+    std_info "K3D - ${action} ${name}"
 
-function cluster_k3d() {
+    delete() {
+        local hasCluster
+        hasCluster=$(k3d cluster list | grep -w "${name}" | cut -d " " -f 1)
+        if [ "$hasCluster" == "${name}" ]; then     
+            spinner "k3d cluster delete ${name}"
+            std_info "Cluster ${name} deleted" # ${result}"
+        fi
+    }
+
+    case "${action}" in
+    create)
+        delete
+        std_info "Creating k3d cluster ${name}"
+        config_file="${HL_SCRIPT_CONFIG}/k3d.yaml"
+        # cat < "${config_file}" | envsubst
+        spinner "k3d cluster create --config ${config_file} --agents-memory 2048MiB --servers-memory 2048MiB" "Creating Cluster"
+        # k3d cluster create --config "${config_file}" --agents-memory 2048MiB --servers-memory 2048MiB | std_buf
+        ;;
+    *)
+        std_error "cluster k3d Incorrect usage: -h for help"
+        usage
+        return
+        ;;
+    esac
+
+}
+function cluster_k3d1() {
     local action
     action="${2}"
     export HL_CLUSTER_NAME="${4:-$HL_CLUSTER_NAME}" 

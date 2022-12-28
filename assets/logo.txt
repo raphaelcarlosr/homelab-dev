@@ -1,0 +1,7 @@
+${GREEN} ________${WARN}           _______${BLUE}          ___  __${NORMAL}       
+${GREEN}|\   ___ \${WARN}         /  ___  \${BLUE}        |\  \|\  \${NORMAL}          ${HL_TITLE}
+${GREEN}\ \  \_|\ \${WARN}       /__/|_/  /|${BLUE}       \ \  \/  /|_${NORMAL}        ${HL_REPO_URL} 
+${GREEN} \ \  \ \\ \${WARN}      |__|//  / /${BLUE}        \ \   ___  \${NORMAL}       ${HL_COPY_RIGHT}
+${GREEN}  \ \  \_\\ \${WARN}         /  /_/__${BLUE}        \ \  \\ \  \${NORMAL} 
+${GREEN}   \ \_______\${WARN}       |\________\${BLUE}       \ \__\\ \__\${NORMAL}
+${GREEN}    \|_______|${WARN}        \|_______|${BLUE}        \|__| \|__|${NORMAL}
