@@ -1,56 +1,101 @@
 #!/usr/bin/env bash
-export HL_ENV_FILE=${HL_SCRIPT_DIR}/.env
-export HL_SSH_PRIVATE_KEY=${HL_PATH}/.ssh
-export HL_SSH_PUBLIC_KEY=${HL_SSH_PRIVATE_KEY}.pub
-export HL_SSH_PUBLIC_KEY_CONTENT=
+export D2K_ENV_FILE=${D2K_SCRIPT_DIR}/.env
+export D2K_SSH_PRIVATE_KEY=${D2K_CONFIG_ENV_PATH}/.ssh
+export D2K_SSH_PUBLIC_KEY=${D2K_SSH_PRIVATE_KEY}.pub
+export D2K_SSH_PUBLIC_KEY_CONTENT=
 
-update_env(){
-    if [ -f "${HL_ENV_FILE}" ]; then
-        # sed -e "s/\r//" -e '/^#/d;/^\s*$/d' -e "s/'/'\\\''/g" -e "s/=\(.*\)/=\"\1\"/g" "${HL_ENV_FILE}"
-        set -o allexport
-        # shellcheck source=/dev/null
-        source <(sed -e "s/\r//" -e '/^#/d;/^\s*$/d' -e "s/'/'\\\''/g" -e "s/=\(.*\)/=\"\1\"/g" "${HL_ENV_FILE}")
-        set +o allexport
-    fi
+get_secrets() {
+    return 1
+    # if [ -f "${D2K_ENV_FILE}" ]; then
+    #     # sed -e "s/\r//" -e '/^#/d;/^\s*$/d' -e "s/'/'\\\''/g" -e "s/=\(.*\)/=\"\1\"/g" "${D2K_ENV_FILE}"
+    #     set -o allexport
+    #     # shellcheck source=/dev/null
+    #     source <(sed -e "s/\r//" -e '/^#/d;/^\s*$/d' -e "s/'/'\\\''/g" -e "s/=\(.*\)/=\"\1\"/g" "${D2K_ENV_FILE}")
+    #     set +o allexport
+    # fi
 }
-update_env
+parse_config() {
+    local config _var name value vars
+    vars=()
+    config="$(niet -f eval "." "${D2K_SCRIPT_CONFIG}/d2k.yaml" | sed -e "s/\r//" -e '/^#/d;/^\s*$/d' -e "s/'/'\\\''/g" | tr ';' $'\n')"
+    readarray -t vars <<<"$config"
+    for _var in "${vars[@]}"; do
+        _var="${_var//__/_}"
+        # _var="$(echo "${_var}" | sed -e "s/\_\_/\_/g")"
+        IFS='=' read -r name value <<<"$_var"
+        name="D2K_CONFIG_${name^^}"
+        # echo "${name} ${value} ${D2K_CONFIG_LOG_LEVEL}"
+        # [ -v "$name" ] && echo "$name is set"
+        vars+=("${name}=${value}")
+        # set -o allexport
+        # # shellcheck source=/dev/null
+        # source <(echo "${name}=${value}")
+        # set +o allexport
+    done
+    # echo "${vars[*]}"
+    set -o allexport
+    # shellcheck source=/dev/null
+    source <(echo "${vars[*]}")
+    set +o allexport
+    # set -o allexport
+    # export D2K_CONFIG_NETWORK_EXTERNAL_IP="${D2K_CONFIG_NETWORK_EXTERNAL_IP//\"/}"
+    # eval "$(niet -f eval "." "${D2K_SCRIPT_CONFIG}"/d2k.yaml)" &>/dev/null
+    # set +o allexport
+}
+# parse_flags() {
 
+# }
 
+get_secrets
+# parse_flags "$@"
 
 POSITIONAL_ARGS=()
-HL_FLAGS=()
+D2K_FLAGS=()
 while [[ $# -gt 0 ]]; do
     case $1 in
-    --debug)
-        HL_DEBUG=${2:-${HL_DEBUG}} # "$2"
-        export HL_DEBUG
-        HL_FLAGS+=("$GREEN${1:-nil}(HL_DEBUG) = ${2:-nil}")
+    --set)
+        IFS='=' read -r name value <<<"${2}"
+        name="${name//-/_}"
+        name="D2K_CONFIG_${name^^}"
+        # value="$(echo "${value}" | sed -e "s/\r//" -e '/^#/d;/^\s*$/d' -e "s/'/'\\\''/g" -e "s/=\(.*\)/=\"\1\"/g")"
+        # echo "${name} ${value}"
+        set -o allexport
+        # shellcheck source=/dev/null
+        source <(echo "${name}=${value}")
+        set +o allexport
         shift # past argument
         shift # past value
         ;;
-    -p | --path)
-        HL_PATH=${2:-${HL_PATH}} # "$2"
-        export HL_PATH
-        HL_FLAGS+=("$GREEN${1:-nil}(HL_PATH) = ${2:-nil}")
-        shift # past argument
-        shift # past value
-        ;;
-    -d | --domain)
-        HL_DOMAIN=${2:-${HL_DOMAIN}} # "$2"
-        export HL_DOMAIN
-        HL_FLAGS+=("$GREEN${1:-nil}(HL_DOMAIN) = ${2:-nil}")
-        shift # past argument
-        shift # past value
-        ;;
-    --cluster-name)
-        HL_CLUSTER_NAME=${2:-${HL_CLUSTER_NAME}} # "$2"
-        export HL_CLUSTER_NAME
-        HL_FLAGS+=("$GREEN${1:-nil}(HL_CLUSTER_NAME) = ${2:-nil}")
-        shift # past argument
-        shift # past value
-        ;;    
+    # --debug)
+    #     D2K_DEBUG=${2:-${D2K_DEBUG}} # "$2"
+    #     export D2K_DEBUG
+    #     D2K_FLAGS+=("$GREEN${1:-nil}(D2K_DEBUG) = ${2:-nil}")
+    #     shift # past argument
+    #     shift # past value
+    #     ;;
+    # -p | --path)
+    #     D2K_CONFIG_ENV_PATH=${2:-${D2K_CONFIG_ENV_PATH}} # "$2"
+    #     export D2K_CONFIG_ENV_PATH
+    #     D2K_FLAGS+=("$GREEN${1:-nil}(D2K_CONFIG_ENV_PATH) = ${2:-nil}")
+    #     shift # past argument
+    #     shift # past value
+    #     ;;
+    # -d | --domain)
+    #     D2K_DOMAIN=${2:-${D2K_DOMAIN}} # "$2"
+    #     export D2K_DOMAIN
+    #     D2K_FLAGS+=("$GREEN${1:-nil}(D2K_DOMAIN) = ${2:-nil}")
+    #     shift # past argument
+    #     shift # past value
+    #     ;;
+    # --cluster-name)
+    #     D2K_CLUSTER_NAME=${2:-${D2K_CLUSTER_NAME}} # "$2"
+    #     export D2K_CLUSTER_NAME
+    #     D2K_FLAGS+=("$GREEN${1:-nil}(D2K_CLUSTER_NAME) = ${2:-nil}")
+    #     shift # past argument
+    #     shift # past value
+    #     ;;
     -* | --*)
-        HL_FLAGS+=("$RED${1:-nil}(Unexpected) = ${2:-nil}")
+        D2K_FLAGS+=("$RED${1:-nil}(Unexpected) = ${2:-nil}")
         shift # past argument
         shift # past value
         continue
@@ -62,4 +107,6 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 set -- "${POSITIONAL_ARGS[@]}"
-export HL_FLAGS
+export D2K_FLAGS
+
+parse_config

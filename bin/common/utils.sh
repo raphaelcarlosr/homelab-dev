@@ -12,21 +12,22 @@ extract_ip() {
 
 }
 execution_time() {
-    ps -o etime= "${HL_CMD_PROCESS}" | sed -e 's/^[[:space:]]*//' | sed -e 's/\://'
+    ps -o etime= "${D2K_CMD_PROCESS}" | sed -e 's/^[[:space:]]*//' | sed -e 's/\://'
 }
+
 tag_to_version() {
-    if [ -z "${HL_TAG}" ]; then
+    if [ -z "${D2K_TAG}" ]; then
         log_info "checking GitHub for latest tag"
     else
-        log_info "checking GitHub for tag '${HL_TAG}'"
+        log_info "checking GitHub for tag '${D2K_TAG}'"
     fi
-    REALTAG=$(github_release "$OWNER/$REPO" "${HL_TAG}") && true
+    REALTAG=$(github_release "$OWNER/$REPO" "${D2K_TAG}") && true
     if test -z "$REALTAG"; then
-        log_crit "unable to find '${HL_TAG}' - use 'latest' or see https://github.com/${PREFIX}/releases for details"
+        log_crit "unable to find '${D2K_TAG}' - use 'latest' or see https://github.com/${PREFIX}/releases for details"
         exit 1
     fi
     # if version starts with 'v', remove it
-    HL_TAG="$REALTAG"
+    D2K_TAG="$REALTAG"
     #   VERSION=${TAG#v}
 }
 adjust_format() {

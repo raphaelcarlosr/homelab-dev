@@ -9,11 +9,11 @@ function traefik(){
         # helm template traefik/traefik
         local values
         values=$(mktemp).yaml
-        envsubst < "$HL_SCRIPT_ASSETS/apps/traefik.values.yaml" > "${values}"
+        envsubst < "$D2K_SCRIPT_ASSETS/apps/traefik.values.yaml" > "${values}"
         echo "${values}"
     }
     resources(){
-        envsubst < "$HL_SCRIPT_ASSETS/apps/traefik.yaml"
+        envsubst < "$D2K_SCRIPT_ASSETS/apps/traefik.yaml"
     }
     deploy(){
         local values_manifest

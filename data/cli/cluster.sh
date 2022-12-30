@@ -11,7 +11,7 @@ function d2k_cluster() {
     before="before_${action}"
     after="after_${action}"
 
-    export HL_CLUSTER_NAME="${4:-$HL_CLUSTER_NAME}"
+    export D2K_CLUSTER_NAME="${4:-$D2K_CLUSTER_NAME}"
     update_env
 
     usage() {
@@ -22,15 +22,15 @@ function d2k_cluster() {
     info() {
         std_line
         std_line
-        std_log "Cluster name: $GREEN${HL_CLUSTER_NAME}"
-        std_log "K8s server:$GREEN https://0.0.0.0:$BLUE${HL_CLUSTER_API_PORT}"
+        std_log "Cluster name: $GREEN${D2K_CLUSTER_NAME}"
+        std_log "K8s server:$GREEN https://0.0.0.0:$BLUE${D2K_CLUSTER_API_PORT}"
         std_log "Ingress Load Balancer: $GREEN$NGINX_LB_EXTERNAL_IP"
         std_log "Open sample app in browser:$GREEN http://$NGINX_LB_EXTERNAL_IP/sampleapp"
-        std_log "To switch to this cluster use$GREEN export KUBECONFIG=\$(k3d kubeconfig write ${HL_CLUSTER_NAME})"
+        std_log "To switch to this cluster use$GREEN export KUBECONFIG=\$(k3d kubeconfig write ${D2K_CLUSTER_NAME})"
         std_log "Then kubectl$GREEN cluster-info"
-        std_log "To stop this cluster (If running), run:$GREEN k3d cluster stop $HL_CLUSTER_NAME"
-        std_log "To start this cluster (If stopped), run:$GREEN k3d cluster start $HL_CLUSTER_NAME"
-        std_log "To delete this cluster, run:$GREEN k3d cluster delete $HL_CLUSTER_NAME"
+        std_log "To stop this cluster (If running), run:$GREEN k3d cluster stop $D2K_CLUSTER_NAME"
+        std_log "To start this cluster (If stopped), run:$GREEN k3d cluster start $D2K_CLUSTER_NAME"
+        std_log "To delete this cluster, run:$GREEN k3d cluster delete $D2K_CLUSTER_NAME"
         std_log "To list all clusters, run:$GREEN k3d cluster list"
         std_log "To switch to another cluster (In case of multiple clusters), run:$GREEN kubectl config use-context k3d-<CLUSTERNAME>"
         std_line
@@ -48,12 +48,12 @@ function d2k_cluster() {
         std_info "Cluster boostrap"
         # cluster_dns_managed_setup
         local apps app deloy
-        apps="${HL_CLUSTER_APPS}"
-        IFS=',' read -r -a HL_CLUSTER_APPS <<<"$apps"
-        if [ "${#HL_CLUSTER_APPS[@]}" -gt 0 ]; then
-            for index in "${!HL_CLUSTER_APPS[@]}"; do
-                app="${HL_CLUSTER_APPS[index]}"
-                # deloy="${HL_CLUSTER_APPS[index]}_deploy"
+        apps="${D2K_CLUSTER_APPS}"
+        IFS=',' read -r -a D2K_CLUSTER_APPS <<<"$apps"
+        if [ "${#D2K_CLUSTER_APPS[@]}" -gt 0 ]; then
+            for index in "${!D2K_CLUSTER_APPS[@]}"; do
+                app="${D2K_CLUSTER_APPS[index]}"
+                # deloy="${D2K_CLUSTER_APPS[index]}_deploy"
                 std_info "Deploying $index ${app}"
                 $app "deploy"
             done
@@ -71,18 +71,18 @@ function d2k_cluster() {
         return
     }
     after_delete() {
-        etc_hosts remove "${HL_CLUSTER_INTERNAL_DOMAIN}"
-        rm -rf "${HL_PATH}/${HL_CLUSTER_NAME}"
+        etc_hosts remove "${D2K_CLUSTER_INTERNAL_DOMAIN}"
+        rm -rf "${D2K_PATH}/${D2K_CLUSTER_NAME}"
     }
     before_create() {
-        std_info "Setuping local cluster ${WARN}${HL_CLUSTER_NAME}${NORMAL} environment"
-        # etc_hosts check "${HL_CLUSTER_INTERNAL_DOMAIN}"
-        etc_hosts add "${HL_CLUSTER_INTERNAL_DOMAIN}" "127.0.0.1"
-        mkdir -p "${HL_PATH}/${HL_CLUSTER_NAME}/manifests/d2k"
-        mkdir -p "${HL_PATH}/${HL_CLUSTER_NAME}/logs/"
-        mkdir -p "${HL_PATH}/${HL_CLUSTER_NAME}/volumes/shared"
-        mkdir -p "${HL_PATH}/${HL_CLUSTER_NAME}/volumes/data"
-        cp -r "${HL_SCRIPT_ASSETS}/k3d"/* "${HL_PATH}/${HL_CLUSTER_NAME}/manifests/d2k"
+        std_info "Setuping local cluster ${WARN}${D2K_CLUSTER_NAME}${NORMAL} environment"
+        # etc_hosts check "${D2K_CLUSTER_INTERNAL_DOMAIN}"
+        etc_hosts add "${D2K_CLUSTER_INTERNAL_DOMAIN}" "127.0.0.1"
+        mkdir -p "${D2K_PATH}/${D2K_CLUSTER_NAME}/manifests/d2k"
+        mkdir -p "${D2K_PATH}/${D2K_CLUSTER_NAME}/logs/"
+        mkdir -p "${D2K_PATH}/${D2K_CLUSTER_NAME}/volumes/shared"
+        mkdir -p "${D2K_PATH}/${D2K_CLUSTER_NAME}/volumes/data"
+        cp -r "${D2K_SCRIPT_ASSETS}/k3d"/* "${D2K_PATH}/${D2K_CLUSTER_NAME}/manifests/d2k"
     }
     after_create() {
         std_array "$(kubectl cluster-info | tr '\n' '|')" "|"

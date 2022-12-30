@@ -1,0 +1,35 @@
+env:
+  path: ${HOME}/d2k
+log:
+  level: ${D2K_CONFIG_LOG_LEVEL:-debug}
+  verbose: ${D2K_CONFIG_LOG_VERBOSE:-true}
+  trace: ${D2K_CONFIG_LOG_TRACE:-true}
+network:
+  external_ip: $(network_cli dns external_ip | tail -1) # "$(dig +short txt ch whoami.cloudflare @1.0.0.1)" # $(network_cli dns external_ip)
+  dns:
+    zone: ${D2K_CONFIG_NETWORK_DNS_ZONE:-raphaelcarlosr.com}
+    provider: cloudflare    # cloudflare, gcp, route53, selfsigned
+cluster:
+  name: ${D2K_CONFIG_CLUSTER_NAME:-d2k-default}
+  ha: false
+  servers:
+    nodes: 1
+    memory: 2048MiB
+  agents:
+    nodes: 1
+    memory: 2048MiB
+  network:
+    name: ${D2K_CONFIG_CLUSTER_NAME}-net
+    internal:
+      host: ${D2K_CONFIG_CLUSTER_NAME}.${D2K_CONFIG_NETWORK_DNS_ZONE}.local
+    external:
+      host: ${D2K_CONFIG_CLUSTER_NAME}.${D2K_CONFIG_NETWORK_DNS_ZONE}      
+  api:
+    host: ${D2K_CONFIG_CLUSTER_NETWORK_INTERNAL_HOST}
+    ip: 127.0.0.1
+    port: 5510
+  ports:
+    http: 80
+    https: 443
+
+  

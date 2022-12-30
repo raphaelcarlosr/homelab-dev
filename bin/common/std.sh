@@ -25,11 +25,11 @@ function exit_after_cleanup() {
     rollback "$1"
 }
 
-export HL_READ_VALUE=
+export D2K_READ_VALUE=
 function read_value() {
-    read -rp "${1} [${BOLD}${2}${NORMAL}]: " HL_READ_VALUE
-    if [ "${HL_READ_VALUE}" = "" ]; then
-        HL_READ_VALUE=$2
+    read -rp "${1} [${BOLD}${2}${NORMAL}]: " D2K_READ_VALUE
+    if [ "${D2K_READ_VALUE}" = "" ]; then
+        D2K_READ_VALUE=$2
     fi
 }
 
@@ -63,7 +63,7 @@ function std_array() {
 function std_debug() {
     str=$1
     log=${2:-"std_log"}
-    if [ "${HL_DEBUG}" -eq 1 ]; then
+    if [ "${D2K_CONFIG_LOG_VERBOSE}" = "True" ]; then
         $log "${str}"
     fi
 }
@@ -71,7 +71,7 @@ function std_debug_array() {
     str=$1
     separator=${2:-'|'}
     log=${3:-"std_log"}
-    if [ "${HL_DEBUG}" -eq 1 ]; then
+    if [ "${D2K_DEBUG}" -eq 1 ]; then
         std_array "${str}" "${separator}" "${log}"
     fi
 }
@@ -85,13 +85,13 @@ std_buf() {
     done
 }
 function show_env_info() {
-    envsubst <"${HL_SCRIPT_ASSETS}/env-info.txt" | column -t -s $'\t'
+    envsubst <"${D2K_SCRIPT_ASSETS}/env-info.txt" | column -t -s $'\t'
 }
 function show_banner() {
-    envsubst <"${HL_SCRIPT_ASSETS}/logo.txt"
+    envsubst <"${D2K_SCRIPT_ASSETS}/logo.txt"
     echo
     std_line
-    # echo "[d2k]${HL_TITLE}   $UNDERLINE${WARN}https://raphaelcarlosr.dev${NORMAL}    $UNDERLINE${WARN}https://github.com/raphaelcarlosr/homelab-dev$NORMAL" | column -t -s $'\t'
+    # echo "[d2k]${D2K_TITLE}   $UNDERLINE${WARN}https://raphaelcarlosr.dev${NORMAL}    $UNDERLINE${WARN}https://github.com/raphaelcarlosr/homelab-dev$NORMAL" | column -t -s $'\t'
     # std_line
     # show_env_info
     # std_line
@@ -109,7 +109,7 @@ function spinner() {
     local spinnerPid=$!
     ${action} | std_buf
     kill "${spinnerPid}"
-    printf "\bDone"
+    printf "\bD"
 }
 
 sp="/-\|"

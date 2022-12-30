@@ -7,34 +7,35 @@
 # Remote: curl https://raw.githubusercontent.com/raphaelcarlosr/homelab-dev/main/setup.sh | CMD=install sudo bash
 ###
 
-HL_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-export HL_SCRIPT_DIR
-# HL_SCRIPT_SRC="${HL_SCRIPT_DIR}/src"
-export HL_COPY_RIGHT="$UNDERLINE${WARN}https://raphaelcarlosr.dev${NORMAL}"
-export HL_SCRIPT_ASSETS="${HL_SCRIPT_DIR}/assets"
-export HL_SCRIPT_BIN="${HL_SCRIPT_DIR}/bin"
-export HL_SCRIPT_CONFIG="${HL_SCRIPT_DIR}/config"
-# export HL_SCRIPT_TOOLS="${HL_SCRIPT_BIN}/tools"
-# export HL_SCRIPT_APPS="${HL_SCRIPT_BIN}/apps"
-# export HL_SCRIPT_CLIS="${HL_SCRIPT_BIN}/cli"
-export HL_OWNER=raphaelcarlosr
-export HL_REPO="homelab-dev"
-export HL_REPO_PREFIX="${HL_OWNER}/${HL_REPO}"
-export HL_REPO_URL=https://github.com/${HL_REPO_PREFIX}
-export HL_REPO_RAW=https://raw.githubusercontent.com/${HL_REPO_PREFIX}/main
-export HL_DOWNLOAD=${HL_REPO_URL}/releases/download
-export HL_BINARY=${HL_REPO}
-export HL_BINARY_FORMAT=tar.gz
-export HL_CMD_PROCESS=$$
-export HL_CMD_FILE=$0
-export HL_CMD_ARGS=$*
-export HL_CMD_ARGS_LEN=$#
-export HL_COPY_RIGHT
+D2K_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export D2K_SCRIPT_DIR
+# D2K_SCRIPT_SRC="${D2K_SCRIPT_DIR}/src"
+export D2K_COPY_RIGHT="$UNDERLINE${WARN}https://raphaelcarlosr.dev${NORMAL}"
+export D2K_SCRIPT_ASSETS="${D2K_SCRIPT_DIR}/assets"
+export D2K_SCRIPT_BIN="${D2K_SCRIPT_DIR}/bin"
+export D2K_SCRIPT_CONFIG="${D2K_SCRIPT_DIR}/config"
+# export D2K_SCRIPT_TOOLS="${D2K_SCRIPT_BIN}/tools"
+# export D2K_SCRIPT_APPS="${D2K_SCRIPT_BIN}/apps"
+# export D2K_SCRIPT_CLIS="${D2K_SCRIPT_BIN}/cli"
+export D2K_OWNER=raphaelcarlosr
+export D2K_REPO="homelab-dev"
+export D2K_REPO_PREFIX="${D2K_OWNER}/${D2K_REPO}"
+export D2K_REPO_URL=https://github.com/${D2K_REPO_PREFIX}
+export D2K_REPO_RAW=https://raw.githubusercontent.com/${D2K_REPO_PREFIX}/main
+export D2K_DOWNLOAD=${D2K_REPO_URL}/releases/download
+export D2K_BINARY=${D2K_REPO}
+export D2K_BINARY_FORMAT=tar.gz
+export D2K_CMD_PROCESS=$$
+export D2K_CMD_FILE=$0
+export D2K_CMD_ARGS=$*
+export D2K_CMD_ARGS_LEN=$#
+export D2K_COPY_RIGHT
 # set -o #allexport
 # shellcheck source=/dev/null
-source "$HL_SCRIPT_BIN/injector.sh"
+source "$D2K_SCRIPT_BIN/injector.sh"
 std_success "d2k finished"
 std_line
+# printenv | grep D2K_ | sort
 # exit 0 
 # cmd="${cmd:-$1}"
 
@@ -61,7 +62,7 @@ std_line
 #     # std_info "stack         -> k3d metallb traefik"
 #     ;;
 # esac
-# printenv | grep HL_ | sort
+# printenv | grep D2K_ | sort
 # # exit
 
 # # REPO_URL="${REPO_RAW_URL:-https://github.com/raphaelcarlosr/homelab-dev}"
@@ -88,7 +89,7 @@ std_line
 # # # shellcheck source=/dev/null
 # # source "$SCRIPT_DIR/src/args.sh"
 # # set +o allexport
-# # printenv | grep "HL_" | sort
+# # printenv | grep "D2K_" | sort
 # # exit
 
 # # # shellcheck source=/dev/null

@@ -2,10 +2,10 @@
 cluster_k3d(){
     local action name
     action="${1}"
-    name="${2:-$HL_CLUSTER_NAME}"
-    export HL_CLUSTER_NAME=$name
+    name="${2:-$D2K_CONFIG_CLUSTER_NAME}"
+    export D2K_CONFIG_CLUSTER_NAME=$name
     std_info "K3D - ${action} ${name}"
-
+    requirement_cli k3d 
     delete() {
         local hasCluster
         hasCluster=$(k3d cluster list | grep -w "${name}" | cut -d " " -f 1)
@@ -18,10 +18,11 @@ cluster_k3d(){
     case "${action}" in
     create)
         delete
-        std_info "Creating k3d cluster ${name}"
-        config_file="${HL_SCRIPT_CONFIG}/k3d.yaml"
-        # cat < "${config_file}" | envsubst
-        spinner "k3d cluster create --config ${config_file} --agents-memory 2048MiB --servers-memory 2048MiB" "Creating Cluster"
+        config_file="${D2K_SCRIPT_CONFIG}/k3d.yaml"
+        std_info "Creating k3d cluster ${name} using config ${BLUE}${config_file}"  
+        std_info "${name}"      
+        # cat < "${config_file}" | envsubst        
+        spinner "k3d cluster create --config ${config_file} --agents-memory 2048MiB --servers-memory 2048MiB" "Creating Cluster"  # --trace --verbose
         # k3d cluster create --config "${config_file}" --agents-memory 2048MiB --servers-memory 2048MiB | std_buf
         ;;
     *)
@@ -35,7 +36,7 @@ cluster_k3d(){
 function cluster_k3d1() {
     local action
     action="${2}"
-    export HL_CLUSTER_NAME="${4:-$HL_CLUSTER_NAME}" 
+    export D2K_CONFIG_CLUSTER_NAME="${4:-$D2K_CONFIG_CLUSTER_NAME}" 
     update_env
     usage() {
         std_info "Commands:"
@@ -49,21 +50,21 @@ function cluster_k3d1() {
     }
     delete() {
         local hasCluster
-        hasCluster=$(k3d cluster list | grep -w "${HL_CLUSTER_NAME}" | cut -d " " -f 1)
-        if [ "$hasCluster" == "${HL_CLUSTER_NAME}" ]; then     
-            result=$(k3d cluster delete "${HL_CLUSTER_NAME}")
-            std_info "Cluster ${HL_CLUSTER_NAME} deleted" # ${result}"
+        hasCluster=$(k3d cluster list | grep -w "${D2K_CONFIG_CLUSTER_NAME}" | cut -d " " -f 1)
+        if [ "$hasCluster" == "${D2K_CONFIG_CLUSTER_NAME}" ]; then     
+            result=$(k3d cluster delete "${D2K_CONFIG_CLUSTER_NAME}")
+            std_info "Cluster ${D2K_CONFIG_CLUSTER_NAME} deleted" # ${result}"
         fi
     }
     set_context(){
-        KUBECONFIG=$(k3d kubeconfig write "${HL_CLUSTER_NAME}")
+        KUBECONFIG=$(k3d kubeconfig write "${D2K_CONFIG_CLUSTER_NAME}")
         export KUBECONFIG
         echo "${KUBECONFIG}"
     }
     create() {
-        std_info "Creating K3D cluster $WARN${HL_CLUSTER_NAME}"
+        std_info "Creating K3D cluster $WARN${D2K_CONFIG_CLUSTER_NAME}"
         delete
-        config_file="${HL_SCRIPT_ASSETS}/resources/k3d.yaml"
+        config_file="${D2K_SCRIPT_ASSETS}/resources/k3d.yaml"
         spinner "k3d cluster create --config ${config_file} --agents-memory 2048MiB --servers-memory 2048MiB" "Creating cluster"
         echo
         config=$(set_context)
@@ -74,13 +75,13 @@ function cluster_k3d1() {
         std_log "Load balancer network range $GREEN ${network_range}"   
     }
     network_range(){
-        cidr_block=$(docker network inspect "${HL_CLUSTER_NAME}"-net | jq '.[0].IPAM.Config[0].Subnet' | tr -d '"')
+        cidr_block=$(docker network inspect "${D2K_CONFIG_CLUSTER_NAME}"-net | jq '.[0].IPAM.Config[0].Subnet' | tr -d '"')
         base_addr=${cidr_block%???}
         first_addr=$(echo "$base_addr" | awk -F'.' '{print $1,$2,$3,240}' OFS='.')
         local NETWORK_IP_RANGE
         NETWORK_IP_RANGE=$first_addr/29
-        export HL_NETWORK_IP_RANGE=$NETWORK_IP_RANGE
-        echo "${HL_NETWORK_IP_RANGE}"
+        export D2K_NETWORK_IP_RANGE=$NETWORK_IP_RANGE
+        echo "${D2K_NETWORK_IP_RANGE}"
     }
     $action "$@"
 

@@ -35,20 +35,20 @@ function cert_manager() {
     }
 
     issuer(){
-        provider=${1:-$HL_CLUSTER_MANAGED_DNS_PROVIDER}
+        provider=${1:-$D2K_CONFIG_CLUSTER_MANAGED_DNS_PROVIDER}
         std_info "Installing ${provider} managed DNS issuer"
         case "${provider}" in
         cloudflare)
             kubectl create secret generic cloudflare-api-token \
                 -n cert-manager \
-                --from-literal=api-token="${HL_CF_TOKEN}" \
+                --from-literal=api-token="${D2K_CF_TOKEN}" \
                 --dry-run=client -o yaml | kubectl replace --force -f - | std_buf
             issuer_cf_manifest | kubectl apply -f- | std_buf
             ;;
         gcp)
             kubectl create secret generic clouddns-dns01-solver \
                 -n cert-manager \
-                --from-file=key.json="${HL_GCP_SERVICE_ACCOUNT}" \
+                --from-file=key.json="${D2K_GCP_SERVICE_ACCOUNT}" \
                 --dry-run=client -o yaml |
                 kubectl replace --force -f - | std_buf
             issuer_gcp_manifest | kubectl apply -f- | std_buf
@@ -88,7 +88,7 @@ spec:
       - dns01:
           route53:
             region: ${ROUTE53_REGION}
-            accessKeyID: ${HL_ROUTE53_TOKEN}
+            accessKeyID: ${D2K_ROUTE53_TOKEN}
             secretAccessKeySecretRef:
               name: route53-api-secret
               key: secret-access-key        
@@ -111,7 +111,7 @@ spec:
     solvers:
       - dns01:
           cloudDNS:
-            project: $HL_GCP_PROJECT_ID
+            project: $D2K_GCP_PROJECT_ID
             serviceAccountSecretRef:
               name: clouddns-dns01-solver
               key: key.json        
@@ -126,14 +126,14 @@ metadata:
   name: d2k-issuer
 spec:
   acme:
-    email: $HL_CF_EMAIL
+    email: $D2K_CF_EMAIL
     privateKeySecretRef:
       name: issuer-account-key
     server: https://acme-v02.api.letsencrypt.org/directory
     solvers:
       - dns01:
           cloudflare:
-            email: $HL_CF_EMAIL
+            email: $D2K_CF_EMAIL
             apiTokenSecretRef:
               name: cloudflare-api-token
               key: api-token
@@ -144,14 +144,14 @@ metadata:
   name: d2k-issuer-staging
 spec:
   acme:
-    email: $HL_CF_EMAIL
+    email: $D2K_CF_EMAIL
     privateKeySecretRef:
       name: issuer-account-key
     server: https://acme-staging-v02.api.letsencrypt.org/directory
     solvers:
       - dns01:
           cloudflare:
-            email: $HL_CF_EMAIL
+            email: $D2K_CF_EMAIL
             apiTokenSecretRef:
               name: cloudflare-api-token
               key: api-token

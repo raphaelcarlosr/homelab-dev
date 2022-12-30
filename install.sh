@@ -4,19 +4,19 @@ export KUBECONFIG=/home/$SUDO_USER/.kube/config
 
 # Input data
 READ_VALUE=
-HL_CLUSTER_NAME=homelab-cluster
-HL_CLUSTER_DOMAIN=me.localhost
-HL_CLUSTER_API_PORT=5510
+D2K_CONFIG_CLUSTER_NAME=homelab-cluster
+D2K_CONFIG_CLUSTER_DOMAIN=me.localhost
+D2K_CONFIG_CLUSTER_API_PORT=5510
 if [[ $UNAMECHK == "Darwin" ]]; then
-    HL_CLUSTER_API_EXTERNAL_IP=$(ifconfig | grep "inet " | grep -v "127.0.0.1" | awk -F " " '{print $2}' | head -n1)
+    D2K_CONFIG_CLUSTER_API_EXTERNAL_IP=$(ifconfig | grep "inet " | grep -v "127.0.0.1" | awk -F " " '{print $2}' | head -n1)
 else
-    HL_CLUSTER_API_EXTERNAL_IP=$(ip a | grep "inet " | grep -v "127.0.0.1" | awk -F " " '{print $2}' | awk -F "/" '{print $1}' | head -n1)
+    D2K_CONFIG_CLUSTER_API_EXTERNAL_IP=$(ip a | grep "inet " | grep -v "127.0.0.1" | awk -F " " '{print $2}' | awk -F "/" '{print $1}' | head -n1)
 fi
-HL_CLUSTER_HTTP_PORT=80
-HL_CLUSTER_HTTPS_PORT=443
-HL_CLUSTER_SERVERS=1
-HL_CLUSTER_AGENTS=1
-HL_CLUSTER_PV_SIZE=10
+D2K_CONFIG_CLUSTER_HTTP_PORT=80
+D2K_CONFIG_CLUSTER_HTTPS_PORT=443
+D2K_CONFIG_CLUSTER_SERVERS=1
+D2K_CONFIG_CLUSTER_AGENTS=1
+D2K_CONFIG_CLUSTER_PV_SIZE=10
 
 NGINX_LB_EXTERNAL_IP=
 
@@ -34,7 +34,7 @@ function exitAfterCleanup() {
 
 function cleanup() {
     header "Cleaning up"
-    rm tmp-k3d-${HL_CLUSTER_NAME}.yaml
+    rm tmp-k3d-${D2K_CONFIG_CLUSTER_NAME}.yaml
 }
 
 function rollback() {
@@ -42,10 +42,10 @@ function rollback() {
     header "Rolling back, before exiting..."
     # $1 is error code
     if [[ "$(which k3d)" != "" ]]; then
-        hasCluster=$(k3d cluster list | grep -w $HL_CLUSTER_NAME | cut -d " " -f 1)
-        if [ "$hasCluster" == "$HL_CLUSTER_NAME" ]; then
-            log "$HL_CLUSTER_NAME already exists"
-            k3d cluster delete $HL_CLUSTER_NAME
+        hasCluster=$(k3d cluster list | grep -w $D2K_CONFIG_CLUSTER_NAME | cut -d " " -f 1)
+        if [ "$hasCluster" == "$D2K_CONFIG_CLUSTER_NAME" ]; then
+            log "$D2K_CONFIG_CLUSTER_NAME already exists"
+            k3d cluster delete $D2K_CONFIG_CLUSTER_NAME
             # read -p "$clusterName already exists, want to delete [Y/n]" deleteCluster
             # if [[ $deleteCluster == "Y" ]]; then
             #     k3d cluster delete $clusterName
@@ -151,40 +151,40 @@ function check_host_requirements() {
 
 function config() {
     header "Setup"
-    read_value "Cluster Name" "${HL_CLUSTER_NAME}"
-    HL_CLUSTER_NAME=${READ_VALUE}
-    export HL_CLUSTER_NAME=${HL_CLUSTER_NAME}
+    read_value "Cluster Name" "${D2K_CONFIG_CLUSTER_NAME}"
+    D2K_CONFIG_CLUSTER_NAME=${READ_VALUE}
+    export D2K_CONFIG_CLUSTER_NAME=${D2K_CONFIG_CLUSTER_NAME}
 
-    read_value "Cluster Domain" "${HL_CLUSTER_DOMAIN}"
-    HL_CLUSTER_DOMAIN=${READ_VALUE}
-    export HL_CLUSTER_DOMAIN=${HL_CLUSTER_DOMAIN}
+    read_value "Cluster Domain" "${D2K_CONFIG_CLUSTER_DOMAIN}"
+    D2K_CONFIG_CLUSTER_DOMAIN=${READ_VALUE}
+    export D2K_CONFIG_CLUSTER_DOMAIN=${D2K_CONFIG_CLUSTER_DOMAIN}
 
-    read_value "Cluster API Port (recommended: 5000-5500)" "${HL_CLUSTER_API_PORT}"
-    HL_CLUSTER_API_PORT=${READ_VALUE}
-    export HL_CLUSTER_API_PORT=${HL_CLUSTER_API_PORT}
+    read_value "Cluster API Port (recommended: 5000-5500)" "${D2K_CONFIG_CLUSTER_API_PORT}"
+    D2K_CONFIG_CLUSTER_API_PORT=${READ_VALUE}
+    export D2K_CONFIG_CLUSTER_API_PORT=${D2K_CONFIG_CLUSTER_API_PORT}
 
-    read_value "Cluster API IP" "${HL_CLUSTER_API_EXTERNAL_IP}"
-    HL_CLUSTER_API_EXTERNAL_IP=${READ_VALUE}
-    export HL_CLUSTER_API_EXTERNAL_IP=${HL_CLUSTER_API_EXTERNAL_IP}
+    read_value "Cluster API IP" "${D2K_CONFIG_CLUSTER_API_EXTERNAL_IP}"
+    D2K_CONFIG_CLUSTER_API_EXTERNAL_IP=${READ_VALUE}
+    export D2K_CONFIG_CLUSTER_API_EXTERNAL_IP=${D2K_CONFIG_CLUSTER_API_EXTERNAL_IP}
 
-    read_value "Cluster HTTP Port" "${HL_CLUSTER_HTTP_PORT}"
-    HL_CLUSTER_HTTP_PORT=${READ_VALUE}
-    export HL_CLUSTER_HTTP_PORT=${HL_CLUSTER_HTTP_PORT}
+    read_value "Cluster HTTP Port" "${D2K_CONFIG_CLUSTER_HTTP_PORT}"
+    D2K_CONFIG_CLUSTER_HTTP_PORT=${READ_VALUE}
+    export D2K_CONFIG_CLUSTER_HTTP_PORT=${D2K_CONFIG_CLUSTER_HTTP_PORT}
 
-    read_value "Cluster HTTPS Port" "${HL_CLUSTER_HTTPS_PORT}"
-    HL_CLUSTER_HTTPS_PORT=${READ_VALUE}
-    export HL_CLUSTER_HTTPS_PORT=${HL_CLUSTER_HTTPS_PORT}
+    read_value "Cluster HTTPS Port" "${D2K_CONFIG_CLUSTER_HTTPS_PORT}"
+    D2K_CONFIG_CLUSTER_HTTPS_PORT=${READ_VALUE}
+    export D2K_CONFIG_CLUSTER_HTTPS_PORT=${D2K_CONFIG_CLUSTER_HTTPS_PORT}
 
-    read_value "Cluster Masters (1Gi memory per node is required)" "${HL_CLUSTER_SERVERS}"
-    HL_CLUSTER_SERVERS=${READ_VALUE}
-    export HL_CLUSTER_SERVERS=${HL_CLUSTER_SERVERS}
+    read_value "Cluster Masters (1Gi memory per node is required)" "${D2K_CONFIG_CLUSTER_SERVERS}"
+    D2K_CONFIG_CLUSTER_SERVERS=${READ_VALUE}
+    export D2K_CONFIG_CLUSTER_SERVERS=${D2K_CONFIG_CLUSTER_SERVERS}
 
-    read_value "Cluster Workers (1Gi memory per node is required)" "${HL_CLUSTER_AGENTS}"
-    HL_CLUSTER_AGENTS=${READ_VALUE}
-    export HL_CLUSTER_AGENTS=${HL_CLUSTER_AGENTS}
+    read_value "Cluster Workers (1Gi memory per node is required)" "${D2K_CONFIG_CLUSTER_AGENTS}"
+    D2K_CONFIG_CLUSTER_AGENTS=${READ_VALUE}
+    export D2K_CONFIG_CLUSTER_AGENTS=${D2K_CONFIG_CLUSTER_AGENTS}
 
-    read_value "Cluster PV Size (Gi)" "${HL_CLUSTER_PV_SIZE}"
-    HL_CLUSTER_PV_SIZE=${READ_VALUE}
+    read_value "Cluster PV Size (Gi)" "${D2K_CONFIG_CLUSTER_PV_SIZE}"
+    D2K_CONFIG_CLUSTER_PV_SIZE=${READ_VALUE}
 }
 
 function get_local_or_remote_file() {
@@ -196,11 +196,11 @@ function get_local_or_remote_file() {
 }
 
 function validate_config() {
-    if [[ $HL_CLUSTER_API_PORT != ?(-)+([0-9]) ]]; then
-        exitWithMsg 1 "$HL_CLUSTER_API_PORT is not a port. Port must be a number"
+    if [[ $D2K_CONFIG_CLUSTER_API_PORT != ?(-)+([0-9]) ]]; then
+        exitWithMsg 1 "$D2K_CONFIG_CLUSTER_API_PORT is not a port. Port must be a number"
     fi
-    if [[ $HL_CLUSTER_AGENTS != ?(-)+([0-9]) ]]; then
-        exitWithMsg 1 "$HL_CLUSTER_AGENTS is not a number. Number of worker node must be a number"
+    if [[ $D2K_CONFIG_CLUSTER_AGENTS != ?(-)+([0-9]) ]]; then
+        exitWithMsg 1 "$D2K_CONFIG_CLUSTER_AGENTS is not a number. Number of worker node must be a number"
     fi
 }
 
@@ -268,14 +268,14 @@ function check_and_install_dependencies() {
 
 function cluster_k3d_create() {
     header "Deleting Previous Cluster"
-    k3d cluster delete ${HL_CLUSTER_NAME}
+    k3d cluster delete ${D2K_CONFIG_CLUSTER_NAME}
 
     header "Creating K3D cluster"
     # https://k3d.io/v5.4.1/usage/configfile/
-    # curl "$(get_local_or_remote_file)/resources/k3d.yaml" | envsubst - --output "tmp-k3d-${HL_CLUSTER_NAME}.yaml"
-    cat resources/k3d.yaml | envsubst >tmp-k3d-${HL_CLUSTER_NAME}.yaml
-    k3d cluster create --config tmp-k3d-${HL_CLUSTER_NAME}.yaml
-    export KUBECONFIG=$(k3d kubeconfig write ${HL_CLUSTER_NAME})
+    # curl "$(get_local_or_remote_file)/resources/k3d.yaml" | envsubst - --output "tmp-k3d-${D2K_CONFIG_CLUSTER_NAME}.yaml"
+    cat resources/k3d.yaml | envsubst >tmp-k3d-${D2K_CONFIG_CLUSTER_NAME}.yaml
+    k3d cluster create --config tmp-k3d-${D2K_CONFIG_CLUSTER_NAME}.yaml
+    export KUBECONFIG=$(k3d kubeconfig write ${D2K_CONFIG_CLUSTER_NAME})
     kubectl cluster-info
     kubectl get nodes
     if [ $? -ne 0 ]; then
@@ -312,7 +312,7 @@ function app_metallb_install() {
     endspin
 
     log "Checking network range"
-    cidr_block=$(docker network inspect ${HL_CLUSTER_NAME}-net | jq '.[0].IPAM.Config[0].Subnet' | tr -d '"')
+    cidr_block=$(docker network inspect ${D2K_CONFIG_CLUSTER_NAME}-net | jq '.[0].IPAM.Config[0].Subnet' | tr -d '"')
     base_addr=${cidr_block%???}
     first_addr=$(echo $base_addr | awk -F'.' '{print $1,$2,$3,240}' OFS='.')
     NETWORK_IP_RANGE=$first_addr/29
@@ -498,15 +498,15 @@ function clusterInfo() {
     echo
     echo "---------------------------------------------------------------------------"
     echo "---------------------------------------------------------------------------"
-    echo "Cluster name: ${HL_CLUSTER_NAME}"
-    echo "K8s server: https://0.0.0.0:${HL_CLUSTER_API_PORT}"
+    echo "Cluster name: ${D2K_CONFIG_CLUSTER_NAME}"
+    echo "K8s server: https://0.0.0.0:${D2K_CONFIG_CLUSTER_API_PORT}"
     echo "Ingress Load Balancer: $NGINX_LB_EXTERNAL_IP"
     echo "Open sample app in browser: http://$NGINX_LB_EXTERNAL_IP/sampleapp"
-    echo "To switch to this cluster use export KUBECONFIG=\$(k3d kubeconfig write ${HL_CLUSTER_NAME})"
+    echo "To switch to this cluster use export KUBECONFIG=\$(k3d kubeconfig write ${D2K_CONFIG_CLUSTER_NAME})"
     echo "Then kubectl cluster-info"
-    echo "To stop this cluster (If running), run: k3d cluster stop $HL_CLUSTER_NAME"
-    echo "To start this cluster (If stopped), run: k3d cluster start $HL_CLUSTER_NAME"
-    echo "To delete this cluster, run: k3d cluster delete $HL_CLUSTER_NAME"
+    echo "To stop this cluster (If running), run: k3d cluster stop $D2K_CONFIG_CLUSTER_NAME"
+    echo "To start this cluster (If stopped), run: k3d cluster start $D2K_CONFIG_CLUSTER_NAME"
+    echo "To delete this cluster, run: k3d cluster delete $D2K_CONFIG_CLUSTER_NAME"
     echo "To list all clusters, run: k3d cluster list"
     echo "To switch to another cluster (In case of multiple clusters), run: kubectl config use-context k3d-<CLUSTERNAME>"
     echo "---------------------------------------------------------------------------"

@@ -5,7 +5,7 @@ require_k3d() {
         std_log "K3d not found. Installing."
         curl -LO https://raw.githubusercontent.com/rancher/k3d/main/install.sh | TAG=$k3dVersion bash
     fi
-    std_log "$GREEN$(k3d --version | tr '\n' ' ')"
+    std_debug "$GREEN$(k3d --version | tr '\n' ' ')"
 }
 
 require_helm() {
@@ -16,7 +16,7 @@ require_helm() {
         get_helm.sh
         rm -f get_helm.sh
     fi
-    std_log "helm $GREEN$(helm version)"
+    std_debug "helm $GREEN$(helm version)"
 }
 
 require_k3sup() {
@@ -27,7 +27,7 @@ require_k3sup() {
     fi
     local _version
     _version=$(k3sup version | tail -2 | tr '\n' ' ')
-    std_log "k3sup $GREEN${_version}"
+    std_debug "k3sup $GREEN${_version}"
 }
 
 require_jq() {
@@ -35,7 +35,7 @@ require_jq() {
         std_log "jq not found. Installing."
         sudo apt install jq -y
     fi
-    std_log "$(jq --version)"
+    std_debug "$(jq --version)"
 }
 
 require_snapd() {
@@ -45,7 +45,7 @@ require_snapd() {
     fi
     local _version
     _version=$(snap --version | tr '\n' ' ')
-    std_log "$GREEN${_version}"
+    std_debug "$GREEN${_version}"
 }
 
 require_k9s() {
@@ -55,7 +55,7 @@ require_k9s() {
     fi
     local _version
     _version=$(k9s version | tail -3 | tr '\n' ' ')
-    std_log "k9s $GREEN${_version}"
+    std_debug "k9s $GREEN${_version}"
 }
 
 require_docker() {
@@ -64,7 +64,7 @@ require_docker() {
         sudo apt-get remove docker docker-engine docker.io containerd runc
         sudo apt install docker.io
     fi
-    std_log "$GREEN$(docker --version)"
+    std_debug "$GREEN$(docker --version)"
 }
 
 require_cloudflared() {
@@ -76,4 +76,21 @@ require_cloudflared() {
         sudo apt-get update && sudo apt-get install cloudflared
     fi
     std_log "$GREEN$(docker --version)"
+}
+
+require_niet(){
+    if [[ "$(which niet)" == "" ]]; then
+        std_log "niet not found. Installing."
+        apt install python3-pip
+        pip install -U niet
+    fi
+    std_debug "$GREEN$(niet --version)"
+}
+require_kubectl(){
+    if [[ "$(which kubectl)" == "" ]]; then
+        std_log "kubectl not found. Installing."
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    fi
+    std_debug "${GREEN}kubectl:$(kubectl version --client -o=yaml | niet clientVersion.gitVersion)"
 }

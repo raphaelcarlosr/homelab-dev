@@ -3,7 +3,7 @@
 network_cli(){    
     load "modules/network"
     local programs program args
-    programs="${HL_PKG_FILES[*]}"
+    programs="${D2K_PKG_FILES[*]}"
     program="${1}"
     args=( "${@:2}" )
     if [[ ${programs[*]} =~ (^|[[:space:]])"${program}"($|[[:space:]]) ]]; then

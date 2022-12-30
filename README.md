@@ -8,11 +8,11 @@
 
 | **Variable** 	| **Default** 	| **description** 	|
 |---	|---	|---	|
-| HL_PATH 	| ~/.homelab 	| Home lab bin path 	|
-| HL_NAME 	| homelab-cluster 	| Home lab name 	|
-| HL_FQDN_DOMAIN 	| homelab.localhost 	| Your domain 	|
-| HL_SSH_PRIVATE_KEY 	| **${HL_PATH}**/.ssh 	| Homelab ssh private key 	|
-| HL_SSH_PUBLIC_KEY 	| **${HL_SSH_PRIVATE_KEY}**.pub 	| Homelab ssh public key 	|
+| D2K_CONFIG_ENV_PATH 	| ~/.homelab 	| Home lab bin path 	|
+| D2K_NAME 	| homelab-cluster 	| Home lab name 	|
+| D2K_FQDN_DOMAIN 	| homelab.localhost 	| Your domain 	|
+| D2K_SSH_PRIVATE_KEY 	| **${D2K_CONFIG_ENV_PATH}**/.ssh 	| Homelab ssh private key 	|
+| D2K_SSH_PUBLIC_KEY 	| **${D2K_SSH_PRIVATE_KEY}**.pub 	| Homelab ssh public key 	|
 
 | The ssl key is auto generated if not exists, and you can delete anytime. It's used in multipass vms
 
@@ -41,10 +41,10 @@
 
 | **option** 	| **default** 	| **description** 	|
 |---	|---	|---	|
-| **-n\|--name** 	| **$HL_NAME** variable | Cluster name 	|
-| **-d\|--domain** 	| **$HL_FQDN_DOMAIN** variable 	| Cluster domain to external access |
+| **-n\|--name** 	| **$D2K_NAME** variable | Cluster name 	|
+| **-d\|--domain** 	| **$D2K_FQDN_DOMAIN** variable 	| Cluster domain to external access |
 | **-p\|--port** 	| 5510 	| Cluster api port |
-| **-ip\|--ip** 	| **${HL_CURRENT_EXTERNAL_IP}** variable    | Cluster api port  |
+| **-ip\|--ip** 	| **${D2K_CURRENT_EXTERNAL_IP}** variable    | Cluster api port  |
 | **-hp\|--http-port** 	| 80    | Cluster **http** port  |
 | **-hs\|--https-port** 	| 443    | Cluster **https** port  |
 | **-cp\|--control-planes** 	| 1    | Number of control planes in clusters  |
