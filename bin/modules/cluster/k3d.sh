@@ -4,8 +4,14 @@ cluster_k3d(){
     action="${1}"
     name="${2:-$D2K_CONFIG_CLUSTER_NAME}"
     export D2K_CONFIG_CLUSTER_NAME=$name
-    std_info "K3D - ${action} ${name}"
-    requirement_cli k3d 
+    std_info "K3D - ${action} ${name}"    
+    install() {
+        if [[ "$(which k3d)" == "" ]]; then
+            std_log "K3d not found. Installing."
+            curl -LO https://raw.githubusercontent.com/rancher/k3d/main/install.sh | TAG=$k3dVersion bash
+        fi
+        std_debug "$GREEN$(k3d --version | tr '\n' ' ')"
+    } 
     delete() {
         local hasCluster
         hasCluster=$(k3d cluster list | grep -w "${name}" | cut -d " " -f 1)
@@ -14,16 +20,15 @@ cluster_k3d(){
             std_info "Cluster ${name} deleted" # ${result}"
         fi
     }
-
+    install
     case "${action}" in
     create)
         delete
         config_file="${D2K_SCRIPT_CONFIG}/k3d.yaml"
         std_info "Creating k3d cluster ${name} using config ${BLUE}${config_file}"  
-        std_info "${name}"      
         # cat < "${config_file}" | envsubst        
         spinner "k3d cluster create --config ${config_file} --agents-memory 2048MiB --servers-memory 2048MiB" "Creating Cluster"  # --trace --verbose
-        # k3d cluster create --config "${config_file}" --agents-memory 2048MiB --servers-memory 2048MiB | std_buf
+        kubectl cluster-info --context "k3d-${name}" | std_buf
         ;;
     *)
         std_error "cluster k3d Incorrect usage: -h for help"

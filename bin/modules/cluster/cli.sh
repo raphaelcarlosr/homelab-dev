@@ -29,6 +29,9 @@ cluster_cli(){
         mkdir -p "${D2K_CONFIG_ENV_PATH}/${D2K_CONFIG_CLUSTER_NAME}/volumes/data"
         # cp -r "${D2K_SCRIPT_ASSETS}/k3d"/* "${D2K_CONFIG_ENV_PATH}/${D2K_CONFIG_CLUSTER_NAME}/manifests/d2k"
     }
+    after_create(){
+        kubectl config get-contexts | std_buf
+    }
 
     before="before_${action}"
     fn="cluster_${engine}"

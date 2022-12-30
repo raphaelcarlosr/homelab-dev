@@ -2,6 +2,9 @@
 
 function setup_directories() {
     mkdir -p -v "${D2K_CONFIG_ENV_PATH}" >/dev/null
+    rm -rf "${D2K_SCRIPT_TMP}"
+    mkdir -p -v "${D2K_SCRIPT_TMP}" >/dev/null
+    sudo chmod a+rwx "${D2K_SCRIPT_TMP}"    
 }
 
 function setup_ssh_key() {

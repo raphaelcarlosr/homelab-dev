@@ -11,6 +11,7 @@ D2K_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export D2K_SCRIPT_DIR
 # D2K_SCRIPT_SRC="${D2K_SCRIPT_DIR}/src"
 export D2K_COPY_RIGHT="$UNDERLINE${WARN}https://raphaelcarlosr.dev${NORMAL}"
+export D2K_SCRIPT_TMP="${D2K_SCRIPT_DIR}/tmp"
 export D2K_SCRIPT_ASSETS="${D2K_SCRIPT_DIR}/assets"
 export D2K_SCRIPT_BIN="${D2K_SCRIPT_DIR}/bin"
 export D2K_SCRIPT_CONFIG="${D2K_SCRIPT_DIR}/config"
@@ -35,7 +36,7 @@ export D2K_COPY_RIGHT
 source "$D2K_SCRIPT_BIN/injector.sh"
 std_success "d2k finished"
 std_line
-# printenv | grep D2K_ | sort
+printenv | grep D2K_CONFIG| sort
 # exit 0 
 # cmd="${cmd:-$1}"
 

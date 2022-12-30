@@ -1,0 +1,27 @@
+# https://kind.sigs.k8s.io/docs/user/configuration/
+apiVersion: kind.x-k8s.io/v1alpha4
+kind: Cluster
+name: ${D2K_CONFIG_CLUSTER_NAME}
+networking:
+  # ipFamily: ipv6
+  apiServerAddress: "${D2K_CONFIG_CLUSTER_API_IP}"
+  apiServerPort: 5010-5050 # ${D2K_CONFIG_CLUSTER_API_PORT}
+  # podSubnet: "10.244.0.0/16"
+  # serviceSubnet: "10.96.0.0/12"
+  disableDefaultCNI: false
+  # kubeProxyMode: "ipvs"
+# nodes:
+# - role: control-plane
+#   extraPortMappings:
+#     - containerPort: 80
+#       hostPort: 80
+#       listenAddress: "0.0.0.0"
+#       protocol: TCP
+#   extraMounts:
+#     - hostPath: ${D2K_CONFIG_ENV_PATH}/${D2K_CONFIG_CLUSTER_NAME}/volumes/shared
+#       containerPath: /shared-pv
+# - role: worker
+#     - hostPath: ${D2K_CONFIG_ENV_PATH}/${D2K_CONFIG_CLUSTER_NAME}/volumes/shared
+#       containerPath: /shared-pv
+#       readOnly: true
+#       selinuxRelabel: false

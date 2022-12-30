@@ -1,5 +1,28 @@
 #!/usr/bin/env bash
 
+yq() {
+  docker run --user="root" --rm -i -v "${D2K_SCRIPT_DIR}":/workdir  mikefarah/yq "$@"
+}
+
+temp_file(){
+    ext="${1:-tmp}"
+    file="$(mktemp --tmpdir="${D2K_SCRIPT_TMP}")"
+    echo "${file}"
+    # name="$(basename "${file}")"
+    # mv -f "$file" "${D2K_SCRIPT_TMP}"
+    # echo "${D2K_SCRIPT_TMP}/${name}"
+}
+
+yq_set_port_by_range(){
+    local key file
+    key="${1}"
+    file="${2}"    
+    port_range="$(yq ''"${key}"'' "tmp/$(basename "${file}")")"
+    port="$(network_cli ports available ${port_range} | tail -1 )"
+    std_info "Selected port ${GREEN}${port}${NORMAL} in configured range ${WARN}${port_range}${NORMAL} to key ${key} "
+    yq -i ''"${key}"' = '"${port}"'' "tmp/$(basename "${file}")"
+}
+
 extract_ip() {
     local data
     data=${1}
