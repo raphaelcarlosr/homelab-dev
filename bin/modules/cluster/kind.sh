@@ -33,11 +33,8 @@ cluster_kind(){
         # manifest=$(mktemp).yaml
         manifest=$(temp_file yaml)
         envsubst < "$config_file" > "${manifest}"
-        yq_set_port_by_range ".networking.apiServerPort" "${manifest}"
-        # port_range="$(yq '.networking.apiServerPort' "tmp/$(basename "${manifest}")")"
-        # port="$(network_cli ports available ${port_range} | tail -1 )"
-        # std_info "Selected port ${GREEN}${port}${NORMAL} in configured range ${WARN}${port_range} "
-        # yq -i '.networking.apiServerPort = '"${port}"'' "tmp/$(basename "${manifest}")"
+        yq_set_port_by_range ".networking.apiServerPort" "${manifest}" "n"
+        # cat "${manifest}"        
         std_info "Creating kind cluster ${name} using config ${BLUE}${manifest}"  
         # cat < "${manifest}" # | envsubst
         stdbuf -oL kind create cluster --name "${name}" --config "${manifest}"  | std_buf               

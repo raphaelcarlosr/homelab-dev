@@ -71,7 +71,9 @@ show_banner
 std_info "${D2K_TITLE}"
 std_info "[${D2K_CMD_PROCESS}] ${D2K_CMD_FILE} ${D2K_CMD_ARGS[*]} --debug=${D2K_DEBUG} ${WARN}${D2K_CONFIG_ENV_PATH}${NORMAL}"
 std_debug "Using flag values"
-for i in "${D2K_FLAGS[@]}"; do std_debug "${i}"; done
+for i in "${POSITIONAL_ARGS[@]}"; do std_debug "arg/${i}"; done
+for i in "${D2K_FLAGS[@]}"; do std_debug "flag/${i}"; done
+for i in "${D2K_RUNTIME_ERRORS[@]}"; do std_debug "error/${i}"; done
 
 # validate and setup
 requirement_cli is_root 

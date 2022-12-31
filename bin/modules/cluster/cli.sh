@@ -31,6 +31,7 @@ cluster_cli(){
     }
     after_create(){
         kubectl config get-contexts | std_buf
+        kubectl cluster-info | std_buf
     }
 
     before="before_${action}"

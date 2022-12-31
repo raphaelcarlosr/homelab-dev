@@ -8,16 +8,16 @@ network:
   external_ip: $(network_cli dns external_ip | tail -1) # "$(dig +short txt ch whoami.cloudflare @1.0.0.1)" # $(network_cli dns external_ip)
   dns:
     zone: ${D2K_CONFIG_NETWORK_DNS_ZONE:-raphaelcarlosr.com}
-    provider: cloudflare    # cloudflare, gcp, route53, selfsigned
+    provider: ${D2K_CONFIG_NETWORK_DNS_ZONE:-cloudflare}    # cloudflare, gcp, route53, selfsigned
 cluster:
   name: ${D2K_CONFIG_CLUSTER_NAME:-d2k-default}
   ha: false
   servers:
-    nodes: 1
-    memory: 2048MiB
+    nodes: ${D2K_CONFIG_CLUSTER_SERVERS_NODES:-1}
+    memory: ${D2K_CONFIG_CLUSTER_SERVERS_MEMORY:-2048MiB}
   agents:
-    nodes: 1
-    memory: 2048MiB
+    nodes: ${D2K_CONFIG_CLUSTER_AGENTS_NODES:-1}
+    memory: ${D2K_CONFIG_CLUSTER_AGENTS_MEMORY:-2048MiB}
   network:
     name: ${D2K_CONFIG_CLUSTER_NAME}-net
     internal:
@@ -25,11 +25,12 @@ cluster:
     external:
       host: ${D2K_CONFIG_CLUSTER_NAME}.${D2K_CONFIG_NETWORK_DNS_ZONE}      
   api:
-    host: ${D2K_CONFIG_CLUSTER_NETWORK_INTERNAL_HOST}
-    ip: 127.0.0.1
-    port: 5510
+    host: ${D2K_CONFIG_CLUSTER_NETWORK_INTERNAL_HOST:-localhost}
+    ip: ${D2K_CONFIG_CLUSTER_API_IP:-127.0.0.1}
+    port: ${D2K_CONFIG_CLUSTER_API_PORT:-5510}
   ports:
-    http: 80
-    https: 443
+    http: ${D2K_CONFIG_CLUSTER_PORTS_HTTP:-$(network_cli ports available 80-80 | tail -1 )}
+    https: ${D2K_CONFIG_CLUSTER_PORTS_HTTPS:-$(network_cli ports available 443-443 | tail -1 )}
 
+  
   

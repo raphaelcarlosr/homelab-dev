@@ -3,6 +3,8 @@ export D2K_ENV_FILE=${D2K_SCRIPT_DIR}/.env
 export D2K_SSH_PRIVATE_KEY=${D2K_CONFIG_ENV_PATH}/.ssh
 export D2K_SSH_PUBLIC_KEY=${D2K_SSH_PRIVATE_KEY}.pub
 export D2K_SSH_PUBLIC_KEY_CONTENT=
+export D2K_RUNTIME_ERRORS=()
+
 
 get_secrets() {
     return 1
@@ -42,58 +44,38 @@ parse_config() {
     # eval "$(niet -f eval "." "${D2K_SCRIPT_CONFIG}"/d2k.yaml)" &>/dev/null
     # set +o allexport
 }
-# parse_flags() {
+show_config() {
+    section="${1}" 
+    printenv | grep "D2K_${section}" | sort | std_buf
+}
 
-# }
 
 get_secrets
-# parse_flags "$@"
+parse_config
 
-POSITIONAL_ARGS=()
-D2K_FLAGS=()
+export D2K_POSITIONAL_ARGS=()
+export D2K_FLAGS=()
 while [[ $# -gt 0 ]]; do
     case $1 in
     --set)
-        IFS='=' read -r name value <<<"${2}"
-        name="${name//-/_}"
+        IFS='=' read -r key value <<<"${2}"
+        name="${key//-/_}"
         name="D2K_CONFIG_${name^^}"
+        is_set="$(variable_is_set "${name}")"
+        if [ "${is_set}" -eq 0 ]; then
+            D2K_RUNTIME_ERRORS+=("${RED}${key}${NORMAL} as ${BLUE}${name}${NORMAL} with value ${WARN}${value}${NORMAL} is not valid option")
+        else
+            # echo "${name} = ${value}"
+            set -o allexport
+            # shellcheck source=/dev/null
+            source <(echo "${name}=${value}")
+            set +o allexport            
+        fi
         # value="$(echo "${value}" | sed -e "s/\r//" -e '/^#/d;/^\s*$/d' -e "s/'/'\\\''/g" -e "s/=\(.*\)/=\"\1\"/g")"
-        # echo "${name} ${value}"
-        set -o allexport
-        # shellcheck source=/dev/null
-        source <(echo "${name}=${value}")
-        set +o allexport
+        # echo "${name} ${value}"        
         shift # past argument
         shift # past value
         ;;
-    # --debug)
-    #     D2K_DEBUG=${2:-${D2K_DEBUG}} # "$2"
-    #     export D2K_DEBUG
-    #     D2K_FLAGS+=("$GREEN${1:-nil}(D2K_DEBUG) = ${2:-nil}")
-    #     shift # past argument
-    #     shift # past value
-    #     ;;
-    # -p | --path)
-    #     D2K_CONFIG_ENV_PATH=${2:-${D2K_CONFIG_ENV_PATH}} # "$2"
-    #     export D2K_CONFIG_ENV_PATH
-    #     D2K_FLAGS+=("$GREEN${1:-nil}(D2K_CONFIG_ENV_PATH) = ${2:-nil}")
-    #     shift # past argument
-    #     shift # past value
-    #     ;;
-    # -d | --domain)
-    #     D2K_DOMAIN=${2:-${D2K_DOMAIN}} # "$2"
-    #     export D2K_DOMAIN
-    #     D2K_FLAGS+=("$GREEN${1:-nil}(D2K_DOMAIN) = ${2:-nil}")
-    #     shift # past argument
-    #     shift # past value
-    #     ;;
-    # --cluster-name)
-    #     D2K_CLUSTER_NAME=${2:-${D2K_CLUSTER_NAME}} # "$2"
-    #     export D2K_CLUSTER_NAME
-    #     D2K_FLAGS+=("$GREEN${1:-nil}(D2K_CLUSTER_NAME) = ${2:-nil}")
-    #     shift # past argument
-    #     shift # past value
-    #     ;;
     -* | --*)
         D2K_FLAGS+=("$RED${1:-nil}(Unexpected) = ${2:-nil}")
         shift # past argument
@@ -101,12 +83,11 @@ while [[ $# -gt 0 ]]; do
         continue
         ;;
     *)
-        POSITIONAL_ARGS+=("$1") # save positional arg
+        D2K_POSITIONAL_ARGS+=("$1") # save positional arg
         shift                   # past argument
         ;;
     esac
 done
-set -- "${POSITIONAL_ARGS[@]}"
-export D2K_FLAGS
+set -- "${D2K_POSITIONAL_ARGS[@]}"
 
 parse_config

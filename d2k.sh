@@ -36,7 +36,7 @@ export D2K_COPY_RIGHT
 source "$D2K_SCRIPT_BIN/injector.sh"
 std_success "d2k finished"
 std_line
-printenv | grep D2K_CONFIG| sort
+show_config "CONFIG"
 # exit 0 
 # cmd="${cmd:-$1}"
 

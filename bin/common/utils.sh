@@ -3,7 +3,10 @@
 yq() {
   docker run --user="root" --rm -i -v "${D2K_SCRIPT_DIR}":/workdir  mikefarah/yq "$@"
 }
-
+killproc (){
+    lsof -i tcp:"$1" -t | xargs kill -9
+    lsof -i tcp:"$1" -t 2>/dev/null >/dev/null || printf "killed processes on port %s\n" "$1"
+}
 temp_file(){
     ext="${1:-tmp}"
     file="$(mktemp --tmpdir="${D2K_SCRIPT_TMP}")"
@@ -16,11 +19,19 @@ temp_file(){
 yq_set_port_by_range(){
     local key file
     key="${1}"
-    file="${2}"    
+    file="${2}"
+    as_str="${3:-n}"
     port_range="$(yq ''"${key}"'' "tmp/$(basename "${file}")")"
+    std_info "Selected port range ${GREEN}${port_range}"
     port="$(network_cli ports available ${port_range} | tail -1 )"
-    std_info "Selected port ${GREEN}${port}${NORMAL} in configured range ${WARN}${port_range}${NORMAL} to key ${key} "
-    yq -i ''"${key}"' = '"${port}"'' "tmp/$(basename "${file}")"
+    std_info "${as_str^^} Selected port ${GREEN}${port}${NORMAL} in configured range ${WARN}${port_range}${NORMAL} to key ${BLUE}${key} "
+    if [ "${as_str}" == "y" ]; then 
+        yq -i "${key} = \"${port}\"" "tmp/$(basename "${file}")"
+    else 
+        yq -i ''"${key}"' = '"${port}"'' "tmp/$(basename "${file}")"
+    fi
+    
+    
 }
 
 extract_ip() {
@@ -87,6 +98,9 @@ is_command() {
 }
 fn_exists() { 
     declare -F "$1" > /dev/null && echo 1 || echo 0; 
+}
+variable_is_set() {
+    declare -p "$1" &>/dev/null && echo 1 || echo 0; 
 }
 uname_os() {
     os=$(uname -s | tr '[:upper:]' '[:lower:]')

@@ -25,9 +25,12 @@ cluster_k3d(){
     create)
         delete
         config_file="${D2K_SCRIPT_CONFIG}/k3d.yaml"
-        std_info "Creating k3d cluster ${name} using config ${BLUE}${config_file}"  
+        manifest=$(temp_file yaml)
+        envsubst < "$config_file" > "${manifest}"
+        yq_set_port_by_range ".kubeAPI.hostPort" "${manifest}" "y"
+        std_info "Creating k3d cluster ${name} using config ${BLUE}${manifest}"  
         # cat < "${config_file}" | envsubst        
-        spinner "k3d cluster create --config ${config_file} --agents-memory 2048MiB --servers-memory 2048MiB" "Creating Cluster"  # --trace --verbose
+        spinner "k3d cluster create --config ${manifest} --agents-memory ${D2K_CONFIG_CLUSTER_AGENTS_MEMORY} --servers-memory ${D2K_CONFIG_CLUSTER_SERVERS_MEMORY}" "Creating Cluster"  # --trace --verbose
         kubectl cluster-info --context "k3d-${name}" | std_buf
         ;;
     *)
